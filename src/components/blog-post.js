@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import { Link, graphql } from 'gatsby';
-import Bio from '../components/bio';
-import Layout from '../components/layout';
-import SEO from '../components/seo';
+import styled from '@emotion/styled';
+import Bio from './bio';
+import Layout from './layout';
+import SEO from './seo';
 
 export const pageQuery = graphql`
   query BlogPostBySlug($id: String!, $previousPostId: String, $nextPostId: String) {
@@ -40,6 +41,18 @@ export const pageQuery = graphql`
   }
 `;
 
+const Title = styled.h1`
+  margin-top: 0;
+`;
+
+const NavList = styled.ul`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  list-style: none;
+  padding: 0;
+`;
+
 export default function BlogPostTemplate({ data, location }) {
   const post = data.markdownRemark;
   const siteTitle = data.site.siteMetadata.title;
@@ -53,7 +66,7 @@ export default function BlogPostTemplate({ data, location }) {
       />
       <article itemScope itemType="http://schema.org/Article">
         <header>
-          <h1 itemProp="headline">{post.frontmatter.title}</h1>
+          <Title itemProp="headline">{post.frontmatter.title}</Title>
           <time dateTime={post.frontmatter.isoDate}>{post.frontmatter.date}</time>
         </header>
         <section itemProp="articleBody" dangerouslySetInnerHTML={{ __html: post.html }} />
@@ -64,15 +77,7 @@ export default function BlogPostTemplate({ data, location }) {
       </article>
 
       <nav>
-        <ul
-          style={{
-            display: `flex`,
-            flexWrap: `wrap`,
-            justifyContent: `space-between`,
-            listStyle: `none`,
-            padding: 0,
-          }}
-        >
+        <NavList>
           <li>
             {previous && (
               <Link to={previous.fields.slug} rel="prev">
@@ -87,7 +92,7 @@ export default function BlogPostTemplate({ data, location }) {
               </Link>
             )}
           </li>
-        </ul>
+        </NavList>
       </nav>
     </Layout>
   );
