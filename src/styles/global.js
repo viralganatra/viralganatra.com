@@ -90,25 +90,23 @@ const globalStyles = (
         margin: 0.5rem 0;
         padding: 1rem;
         overflow: auto;
+
+        pre[class*='language-'] {
+          background-color: transparent;
+          float: left;
+          margin: 0;
+          min-width: 100%;
+          padding: 0;
+          overflow: initial;
+        }
       }
       .gatsby-highlight-code-line {
         background-color: var(--code-highlight-line-bg);
-        border-left: 5px solid var(--code-highlight-line-notch);
+        border-left: 0.25rem solid var(--code-highlight-line-notch);
         display: block;
         margin: 0 -1rem;
         padding-left: 0.75rem;
         padding-right: 1rem;
-      }
-      .gatsby-highlight pre[class*='language-'] {
-        background-color: transparent;
-        margin: 0;
-        min-width: 100%;
-        overflow: hidden;
-        padding: 0;
-      }
-
-      .gatsby-highlight pre[class*='language-'].line-numbers {
-        padding-left: 2.8rem;
       }
     `}
   />
