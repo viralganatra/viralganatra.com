@@ -1,6 +1,6 @@
 import { Global, css } from '@emotion/react';
 import emotionNormalize from 'emotion-normalize';
-import bg from '../../content/assets/bg.webp';
+import bgLegacy from '../../content/assets/bg.jpg';
 
 const globalStyles = (
   <Global
@@ -32,7 +32,7 @@ const globalStyles = (
         box-sizing: inherit;
       }
       html {
-        background: var(--bg) url(${bg}) fixed 0 0;
+        background: var(--bg) url(${bgLegacy}) fixed 0 0;
         box-sizing: border-box;
         color: var(--text-color);
         font-family: var(--base-font-family);
