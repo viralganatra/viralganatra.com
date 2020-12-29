@@ -23,9 +23,6 @@ export default function SEO({ lang = 'en', meta = [], title, description }) {
 
   return (
     <Helmet
-      htmlAttributes={{
-        lang,
-      }}
       title={title}
       titleTemplate={`%s | ${site.siteMetadata.title}`}
       meta={[
@@ -63,7 +60,9 @@ export default function SEO({ lang = 'en', meta = [], title, description }) {
         },
         ...meta,
       ]}
-    />
+    >
+      <html lang={lang} />
+    </Helmet>
   );
 }
 
