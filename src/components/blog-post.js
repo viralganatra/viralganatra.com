@@ -113,6 +113,7 @@ BlogPostTemplate.propTypes = {
         date: PropTypes.string.isRequired,
       }).isRequired,
       excerpt: PropTypes.string.isRequired,
+      html: PropTypes.string.isRequired,
     }).isRequired,
     previous: PropTypes.shape(),
     next: PropTypes.shape(),
