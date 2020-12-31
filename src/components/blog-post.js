@@ -3,6 +3,7 @@ import { Link, graphql } from 'gatsby';
 import styled from '@emotion/styled';
 import Layout from './layout';
 import SEO from './seo';
+import * as tokens from '../styles/design-tokens';
 
 export const pageQuery = graphql`
   query BlogPostBySlug($id: String!, $previousPostId: String, $nextPostId: String) {
@@ -40,6 +41,12 @@ export const pageQuery = graphql`
   }
 `;
 
+const Article = styled.article`
+  h2 {
+    margin-top: ${tokens.TOKEN_SPACING_MD};
+  }
+`;
+
 const Title = styled.h1`
   margin-top: 0;
 `;
@@ -62,14 +69,14 @@ export default function BlogPostTemplate({ data, location }) {
         title={post.frontmatter.title}
         description={post.frontmatter.description || post.excerpt}
       />
-      <article itemScope itemType="http://schema.org/Article">
+      <Article itemScope itemType="http://schema.org/Article">
         <header>
           <Title itemProp="headline">{post.frontmatter.title}</Title>
           <time dateTime={post.frontmatter.isoDate}>{post.frontmatter.date}</time>
         </header>
         <section itemProp="articleBody" dangerouslySetInnerHTML={{ __html: post.html }} />
         <hr />
-      </article>
+      </Article>
 
       <nav>
         <NavList>

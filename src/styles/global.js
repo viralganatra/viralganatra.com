@@ -1,20 +1,25 @@
 import { Global, css } from '@emotion/react';
 import emotionNormalize from 'emotion-normalize';
 import bgLegacy from '../../content/assets/bg.jpg';
+import { mediaQuery, sm, md } from './responsive';
+import { px2rem } from './utils';
+import * as tokens from './design-tokens';
 
 const globalStyles = (
   <Global
     styles={css`
       ${emotionNormalize};
+
       :root {
         --base-font-family: 'Open Sans', sans-serif;
-        --base-font-size: 1rem;
+        --base-font-size: ${tokens.TOKEN_FONT_SIZE_BASE};
 
         --text-color: #3a3c3e;
         --text-color-highlight: #fff;
         --bg: #e79367;
 
-        --link-color: #fff;
+        --link-color: #111;
+        --link-color-hover: #fff;
         --link-bg: hotpink;
         --link-bg-hover: #243aab;
         --content-text-color: #111;
@@ -24,8 +29,18 @@ const globalStyles = (
         --code-highlight-line-bg: #636363;
         --code-highlight-line-notch: hotpink;
 
-        --site-max-width: 75em;
+        --site-max-width: ${px2rem(1200)};
+
+        --spacing-content: ${tokens.TOKEN_SPACING_SM};
+
+        ${mediaQuery(sm)} {
+          --spacing-content: ${tokens.TOKEN_SPACING_MD};
+        }
+        ${mediaQuery(md)} {
+          --spacing-content: ${tokens.TOKEN_SPACING_XL};
+        }
       }
+
       *,
       *:before,
       *:after {
@@ -37,7 +52,7 @@ const globalStyles = (
         color: var(--text-color);
         font-family: var(--base-font-family);
         font-size: var(--base-font-size);
-        line-height: 1.5;
+        line-height: ${tokens.TOKEN_LINE_HEIGHT_BASE};
       }
       body {
         margin: 0;
@@ -47,22 +62,23 @@ const globalStyles = (
       h3,
       h4,
       p {
-        margin: 1rem 0;
-      }
-      h1,
-      h2,
-      h3,
-      h4 {
+        margin: ${px2rem(16)} 0;
         font-weight: bold;
       }
+      p {
+        font-weight: normal;
+      }
       h1 {
-        font-size: 2rem;
+        font-size: ${tokens.TOKEN_FONT_SIZE_ALPHA};
+        line-height: ${tokens.TOKEN_LINE_HEIGHT_ALPHA};
       }
       h2 {
-        font-size: 1.6rem;
+        font-size: ${tokens.TOKEN_FONT_SIZE_BETA};
+        line-height: ${tokens.TOKEN_LINE_HEIGHT_BETA};
       }
       h3 {
-        font-size: 1.3rem;
+        font-size: ${tokens.TOKEN_FONT_SIZE_GAMMA};
+        line-height: ${tokens.TOKEN_LINE_HEIGHT_GAMMA};
       }
       h4 {
         font-size: var(--base-font-size);
@@ -78,6 +94,7 @@ const globalStyles = (
 
         &:hover {
           background-color: var(--link-bg-hover);
+          color: var(--link-color-hover);
         }
         &:active {
           transform: translateY(2px);
