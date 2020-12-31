@@ -1,7 +1,6 @@
 import PropTypes from 'prop-types';
 import { Link, graphql } from 'gatsby';
 import styled from '@emotion/styled';
-import Bio from './bio';
 import Layout from './layout';
 import SEO from './seo';
 
@@ -54,9 +53,8 @@ const NavList = styled.ul`
 `;
 
 export default function BlogPostTemplate({ data, location }) {
-  const post = data.markdownRemark;
-  const siteTitle = data.site.siteMetadata.title;
-  const { previous, next } = data;
+  const { markdownRemark: post, previous, next, site } = data;
+  const siteTitle = site.siteMetadata.title;
 
   return (
     <Layout location={location} title={siteTitle}>
@@ -71,9 +69,6 @@ export default function BlogPostTemplate({ data, location }) {
         </header>
         <section itemProp="articleBody" dangerouslySetInnerHTML={{ __html: post.html }} />
         <hr />
-        <footer>
-          <Bio />
-        </footer>
       </article>
 
       <nav>
