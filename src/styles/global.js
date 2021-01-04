@@ -18,10 +18,8 @@ const globalStyles = (
         --text-color-highlight: #fff;
         --bg: #e79367;
 
-        --link-color: #111;
+        --link-color: #006fc6;
         --link-color-hover: #fff;
-        --link-bg: hotpink;
-        --link-bg-hover: #243aab;
         --content-text-color: #111;
         --content-bg: rgba(255, 255, 255, 0.9);
 
@@ -84,8 +82,7 @@ const globalStyles = (
         font-size: var(--base-font-size);
       }
       a {
-        border-bottom: 2px solid var(--link-bg-hover);
-        background-color: var(--link-bg);
+        border-bottom: 2px solid var(--link-color);
         color: var(--link-color);
         display: inline-flex;
         padding: 0 4px;
@@ -93,7 +90,7 @@ const globalStyles = (
         transition: all 0.3s ease;
 
         &:hover {
-          background-color: var(--link-bg-hover);
+          background-color: var(--link-color);
           color: var(--link-color-hover);
         }
         &:active {
