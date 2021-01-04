@@ -16,6 +16,7 @@ export const pageQuery = graphql`
       id
       excerpt(pruneLength: 160)
       html
+      timeToRead
       frontmatter {
         title
         date(formatString: "DD MMMM YYYY")
@@ -51,6 +52,15 @@ const Title = styled.h1`
   margin-top: 0;
 `;
 
+const ArticleMeta = styled.div`
+  font-size: ${tokens.TOKEN_FONT_SIZE_DELTA};
+  line-height: ${tokens.TOKEN_LINE_HEIGHT_DELTA};
+`;
+
+const Separator = styled.span`
+  margin: 0 ${tokens.TOKEN_SPACING_XS};
+`;
+
 const NavList = styled.ul`
   display: flex;
   flex-wrap: wrap;
@@ -72,7 +82,11 @@ export default function BlogPostTemplate({ data, location }) {
       <Article itemScope itemType="http://schema.org/Article">
         <header>
           <Title itemProp="headline">{post.frontmatter.title}</Title>
-          <time dateTime={post.frontmatter.isoDate}>{post.frontmatter.date}</time>
+          <ArticleMeta>
+            <time dateTime={post.frontmatter.isoDate}>{post.frontmatter.date}</time>
+            <Separator>·</Separator>
+            {post.timeToRead} min read
+          </ArticleMeta>
         </header>
         <section itemProp="articleBody" dangerouslySetInnerHTML={{ __html: post.html }} />
         <hr />
