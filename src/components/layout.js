@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
+import { Link } from 'gatsby';
 import globalStyles from '../styles/global';
 import { px2rem } from '../styles/utils';
 import { mediaQuery, sm, lg } from '../styles/responsive';
@@ -89,14 +90,37 @@ const Main = styled.main`
   padding: var(--spacing-content);
 `;
 
-export default function Layout({ children }) {
+const LogoLink = styled(Link)`
+  background: inherit;
+  border: none;
+  color: inherit;
+  padding: 0;
+
+  &:hover {
+    background: inherit;
+  }
+`;
+
+export default function Layout({ children, location }) {
+  const rootPath = `${__PATH_PREFIX__}/`;
+  const isRootPath = location.pathname === rootPath;
+  let header = (
+    <Logo data-heading="Viral Ganatra">
+      <LogoLink to="/">Viral Ganatra</LogoLink>
+    </Logo>
+  );
+
+  if (isRootPath) {
+    header = <Logo data-heading="Viral Ganatra">Viral Ganatra</Logo>;
+  }
+
   return (
     <>
       {globalStyles}
 
       <Container>
         <Masthead>
-          <Logo data-heading="Viral Ganatra">Viral Ganatra</Logo>
+          {header}
           <Strapline>Pixels with purpose</Strapline>
         </Masthead>
         <Main>{children}</Main>
@@ -107,4 +131,7 @@ export default function Layout({ children }) {
 
 Layout.propTypes = {
   children: PropTypes.arrayOf(PropTypes.node).isRequired,
+  location: PropTypes.shape({
+    pathname: PropTypes.string.isRequired,
+  }).isRequired,
 };
