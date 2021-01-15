@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { Link, graphql } from 'gatsby';
 import styled from '@emotion/styled';
+import { MDXRenderer } from 'gatsby-plugin-mdx';
 import Layout from './layout';
 import SEO from './seo';
 import * as tokens from '../styles/design-tokens';
@@ -12,10 +13,10 @@ export const pageQuery = graphql`
         title
       }
     }
-    markdownRemark(id: { eq: $id }) {
+    mdx(id: { eq: $id }) {
       id
       excerpt(pruneLength: 160)
-      html
+      body
       timeToRead
       frontmatter {
         title
@@ -23,7 +24,7 @@ export const pageQuery = graphql`
         isoDate: date(formatString: "YYYY-MM-DD")
       }
     }
-    previous: markdownRemark(id: { eq: $previousPostId }) {
+    previous: mdx(id: { eq: $previousPostId }) {
       fields {
         slug
       }
@@ -31,7 +32,7 @@ export const pageQuery = graphql`
         title
       }
     }
-    next: markdownRemark(id: { eq: $nextPostId }) {
+    next: mdx(id: { eq: $nextPostId }) {
       fields {
         slug
       }
@@ -70,7 +71,7 @@ const NavList = styled.ul`
 `;
 
 export default function BlogPostTemplate({ data, location }) {
-  const { markdownRemark: post, previous, next, site } = data;
+  const { mdx: post, previous, next, site } = data;
   const siteTitle = site.siteMetadata.title;
 
   return (
@@ -88,7 +89,7 @@ export default function BlogPostTemplate({ data, location }) {
             {post.timeToRead} min read
           </ArticleMeta>
         </header>
-        <section itemProp="articleBody" dangerouslySetInnerHTML={{ __html: post.html }} />
+        <MDXRenderer itemProp="articleBody">{post.body}</MDXRenderer>
         <hr />
       </Article>
 
@@ -121,7 +122,7 @@ BlogPostTemplate.propTypes = {
         title: PropTypes.string.isRequired,
       }).isRequired,
     }).isRequired,
-    markdownRemark: PropTypes.shape({
+    mdx: PropTypes.shape({
       frontmatter: PropTypes.shape({
         title: PropTypes.string.isRequired,
         description: PropTypes.string,
@@ -129,7 +130,7 @@ BlogPostTemplate.propTypes = {
         date: PropTypes.string.isRequired,
       }).isRequired,
       excerpt: PropTypes.string.isRequired,
-      html: PropTypes.string.isRequired,
+      body: PropTypes.string.isRequired,
     }).isRequired,
     previous: PropTypes.shape(),
     next: PropTypes.shape(),

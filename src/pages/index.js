@@ -10,17 +10,15 @@ export const pageQuery = graphql`
         title
       }
     }
-    allMarkdownRemark(sort: { fields: [frontmatter___date], order: DESC }) {
-      edges {
-        node {
-          excerpt
-          fields {
-            slug
-          }
-          frontmatter {
-            date(formatString: "MMMM DD, YYYY")
-            title
-          }
+    allMdx(sort: { fields: [frontmatter___date], order: DESC }) {
+      nodes {
+        excerpt
+        fields {
+          slug
+        }
+        frontmatter {
+          date(formatString: "MMMM DD, YYYY")
+          title
         }
       }
     }
@@ -29,28 +27,28 @@ export const pageQuery = graphql`
 
 export default function BlogIndex({ data, location }) {
   const siteTitle = data.site.siteMetadata.title;
-  const posts = data.allMarkdownRemark.edges;
+  const posts = data.allMdx.nodes;
 
   return (
     <Layout location={location} title={siteTitle}>
       <SEO title="Passionate web developer who loves JavaScript!" />
 
-      {posts.map(({ node }) => {
-        const title = node.frontmatter.title || node.fields.slug;
+      {posts.map(({ frontmatter, fields, excerpt }) => {
+        const title = frontmatter.title || fields.slug;
         return (
-          <article key={node.fields.slug}>
+          <article key={fields.slug}>
             <header>
               <h3>
-                <Link style={{ boxShadow: `none` }} to={node.fields.slug}>
+                <Link style={{ boxShadow: `none` }} to={fields.slug}>
                   {title}
                 </Link>
               </h3>
-              <small>{node.frontmatter.date}</small>
+              <small>{frontmatter.date}</small>
             </header>
             <section>
               <p
                 dangerouslySetInnerHTML={{
-                  __html: node.excerpt,
+                  __html: excerpt,
                 }}
               />
             </section>
@@ -68,10 +66,12 @@ BlogIndex.propTypes = {
         title: PropTypes.string.isRequired,
       }).isRequired,
     }).isRequired,
-    allMarkdownRemark: PropTypes.shape({
-      edges: PropTypes.arrayOf(
+    mdx: PropTypes.shape({
+      nodes: PropTypes.arrayOf(
         PropTypes.shape({
-          node: PropTypes.shape(),
+          frontmatter: PropTypes.shape(),
+          fields: PropTypes.shape(),
+          excerpt: PropTypes.shape(),
         }),
       ),
     }),
