@@ -17,15 +17,15 @@
     "lint": "app-scripts lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.1.4",
-    "@emotion/styled": "^11.0.0",
-    "@fontsource/open-sans": "^4.1.0",
+    "@emotion/react": "^11.1.5",
+    "@emotion/styled": "^11.1.5",
+    "@fontsource/open-sans": "^4.2.2",
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
     "emotion-normalize": "^11.0.1",
     "gatsby": "^3.1.2",
-    "gatsby-image": "^3.1.0",
     "gatsby-plugin-emotion": "^6.1.0",
+    "gatsby-plugin-image": "^1.1.2",
     "gatsby-plugin-manifest": "^3.1.0",
     "gatsby-plugin-mdx": "^2.1.0",
     "gatsby-plugin-offline": "^4.1.0",
@@ -37,22 +37,18 @@
     "gatsby-remark-smartypants": "^3.1.0",
     "gatsby-source-filesystem": "^3.1.0",
     "gatsby-transformer-sharp": "^3.1.0",
-    "prismjs": "^1.22.0",
+    "prismjs": "^1.23.0",
     "prop-types": "^15.7.2",
-    "react": "^17.0.1",
-    "react-dom": "^17.0.1",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0"
   },
   "devDependencies": {
-    "@viralganatra/app-scripts": "^4.0.0-beta.3"
+    "@viralganatra/app-scripts": "^4.0.0"
   },
   "husky": {
     "hooks": {
       "pre-commit": "app-scripts precommit"
     }
-  },
-  "resolutions": {
-    "eslint": "^7.16.0",
-    "eslint-plugin-react-hooks": "^4.2.0"
   }
 }

@@ -1,14 +1,12 @@
 import { useStaticQuery, graphql } from 'gatsby';
-import Image from 'gatsby-image';
+import { GatsbyImage, getImage } from 'gatsby-plugin-image';
 
 export default function Bio() {
   const data = useStaticQuery(graphql`
     query BioQuery {
       avatar: file(absolutePath: { regex: "/profile-pic.jpg/" }) {
         childImageSharp {
-          fixed(width: 50, height: 50) {
-            ...GatsbyImageSharpFixed
-          }
+          gatsbyImageData(width: 50, formats: [AUTO, WEBP, AVIF])
         }
       }
       site {
@@ -26,10 +24,11 @@ export default function Bio() {
   `);
 
   const { author, social } = data.site.siteMetadata;
+  const image = getImage(data.avatar);
 
   return (
     <div>
-      <Image fixed={data.avatar.childImageSharp.fixed} alt={author.name} />
+      <GatsbyImage image={image} alt={author.name} />
       <p>
         Written by <strong>{author.name}</strong> {author.summary}
         {` `}
