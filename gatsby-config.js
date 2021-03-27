@@ -11,9 +11,6 @@ module.exports = {
       twitter: 'viralganatra16',
     },
   },
-  flags: {
-    FAST_REFRESH: true,
-  },
   plugins: [
     'gatsby-plugin-emotion',
     {
@@ -60,7 +57,6 @@ module.exports = {
     },
     'gatsby-transformer-sharp',
     'gatsby-plugin-sharp',
-    'gatsby-plugin-feed',
     {
       resolve: 'gatsby-plugin-manifest',
       options: {
