@@ -1,6 +1,16 @@
 import { px2rem } from './utils';
 
 /**
+ * Pixel equivalent: 2px
+ */
+export const TOKEN_SPACING_XXXS = px2rem(2);
+
+/**
+ * Pixel equivalent: 4px
+ */
+export const TOKEN_SPACING_XXS = px2rem(4);
+
+/**
  * Pixel equivalent: 8px
  */
 export const TOKEN_SPACING_XS = px2rem(8);
@@ -53,12 +63,12 @@ export const TOKEN_FONT_SIZE_BASE = px2rem(16);
 /**
  * Pixel equivalent: 35px
  */
-export const TOKEN_LINE_HEIGHT_ALPHA = px2rem(35);
+export const TOKEN_LINE_HEIGHT_ALPHA = px2rem(38);
 
 /**
  * Pixel equivalent: 25px
  */
-export const TOKEN_LINE_HEIGHT_BETA = px2rem(30);
+export const TOKEN_LINE_HEIGHT_BETA = px2rem(34);
 
 /**
  * Pixel equivalent: 23px
@@ -73,4 +83,4 @@ export const TOKEN_LINE_HEIGHT_DELTA = px2rem(21);
 /**
  * Pixel equivalent: 24px
  */
-export const TOKEN_LINE_HEIGHT_BASE = px2rem(24);
+export const TOKEN_LINE_HEIGHT_BASE = px2rem(26);
