@@ -122,6 +122,36 @@ const globalStyles = (
         padding-left: 0.75rem;
         padding-right: 1rem;
       }
+
+      h2,
+      h3,
+      h4 {
+        .anchor {
+          background: none;
+          border: none;
+          color: inherit;
+          display: none;
+          margin-left: calc(-${tokens.TOKEN_SPACING_MD} - 2px);
+          margin-right: 2px;
+          opacity: 0;
+          padding: 0;
+          transition: opacity 0.1 ease;
+
+          ${mediaQuery(md)} {
+            display: inline;
+          }
+          &:hover {
+            color: var(--link-color);
+          }
+          svg {
+            fill: currentColor;
+          }
+        }
+        &:hover .anchor {
+          background: inherit;
+          opacity: 1;
+        }
+      }
     `}
   />
 );
