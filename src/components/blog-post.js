@@ -47,6 +47,9 @@ const Article = styled.article`
   h2 {
     margin-top: ${tokens.TOKEN_SPACING_MD};
   }
+  .gatsby-resp-image-wrapper {
+    margin-bottom: ${tokens.TOKEN_SPACING_MD};
+  }
 `;
 
 const Title = styled.h1`
