@@ -29,7 +29,7 @@ export const pageQuery = graphql`
         slug
       }
       frontmatter {
-        title
+        title: metaTitle
       }
     }
     next: mdx(id: { eq: $nextPostId }) {
@@ -37,7 +37,7 @@ export const pageQuery = graphql`
         slug
       }
       frontmatter {
-        title
+        title: metaTitle
       }
     }
   }
