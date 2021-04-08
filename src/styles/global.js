@@ -1,6 +1,6 @@
 import { Global, css } from '@emotion/react';
 import emotionNormalize from 'emotion-normalize';
-import bgLegacy from '../../content/assets/bg.jpg';
+import bgWebp from '../../content/assets/bg.webp';
 import { mediaQuery, sm, md } from './responsive';
 import { px2rem } from './utils';
 import * as tokens from './design-tokens';
@@ -45,12 +45,18 @@ const globalStyles = (
         box-sizing: inherit;
       }
       html {
-        background: var(--bg) url(${bgLegacy}) fixed 0 0;
+        background: var(--bg) url(${bgWebp}) fixed 0 0;
         box-sizing: border-box;
         color: var(--text-color);
         font-family: var(--base-font-family);
         font-size: var(--base-font-size);
         line-height: ${tokens.TOKEN_LINE_HEIGHT_BASE};
+
+        /* one day...
+        background-image: image-set(
+          url('/images/bg.avif') 1x,
+          url('/images/bg.webp') 1x,
+        ); */
       }
       body {
         margin: 0;
