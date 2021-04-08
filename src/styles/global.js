@@ -108,6 +108,42 @@ const globalStyles = (
           color: var(--link-color-hover);
         }
       }
+      blockquote {
+        border-left: 5px solid var(--link-color);
+        font-size: ${tokens.TOKEN_FONT_SIZE_BETA};
+        line-height: ${tokens.TOKEN_LINE_HEIGHT_BETA};
+        margin: ${tokens.TOKEN_SPACING_LG} 0;
+        padding: ${tokens.TOKEN_SPACING_XXS} ${tokens.TOKEN_SPACING_XS};
+        padding-left: ${tokens.TOKEN_SPACING_MD};
+
+        ${mediaQuery(md)} {
+          margin: ${tokens.TOKEN_SPACING_LG} ${tokens.TOKEN_SPACING_XL};
+        }
+        p {
+          quotes: '“' '”' '‘' '’';
+          text-indent: -0.45em;
+
+          @supports (hanging-punctuation: first) {
+            text-indent: 0;
+            hanging-punctuation: first;
+          }
+          &:before,
+          &:after {
+            content: open-quote;
+            font-family: serif;
+            font-size: 120%;
+          }
+          &:after {
+            content: close-quote;
+          }
+          &:first-of-type {
+            margin-top: 0;
+          }
+          &:last-of-type {
+            margin-bottom: 0;
+          }
+        }
+      }
 
       .gatsby-highlight {
         background-color: var(--code-bg);
