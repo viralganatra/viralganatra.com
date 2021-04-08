@@ -30,7 +30,7 @@ const globalStyles = (
         --code-highlight-line-bg: #636363;
         --code-highlight-line-notch: hotpink;
 
-        --site-max-width: ${px2rem(1200)};
+        --site-max-width: ${px2rem(1100)};
 
         --spacing-content: ${tokens.TOKEN_SPACING_SM};
 
