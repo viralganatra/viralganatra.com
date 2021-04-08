@@ -18,6 +18,9 @@ const globalStyles = (
         --text-color-highlight: #fff;
         --bg: #e79367;
 
+        --gradient-color-primary: #ff1493;
+        --gradient-color-secondary: #9932cc;
+
         --link-color: #006fc6;
         --link-color-hover: #fff;
         --content-text-color: #111;
@@ -88,19 +91,21 @@ const globalStyles = (
         font-size: var(--base-font-size);
       }
       a {
-        border-bottom: 2px solid var(--link-color);
+        background: linear-gradient(to right, var(--link-color), var(--link-color)),
+          linear-gradient(to right, var(--gradient-color-primary), var(--gradient-color-secondary));
+        background-size: 100% ${tokens.TOKEN_SPACING_XXXS}, 0 ${tokens.TOKEN_SPACING_XXXS};
+        background-position: 100% 100%, 0 100%;
+        background-repeat: no-repeat;
         color: var(--link-color);
-        display: inline-flex;
-        padding: 0 4px;
+        transition: all 0.4s ease;
         text-decoration: none;
-        transition: all 0.3s ease;
 
         &:hover {
-          background-color: var(--link-color);
-          color: var(--link-color-hover);
+          background-size: 0 ${tokens.TOKEN_SPACING_XXXS}, 100% ${tokens.TOKEN_SPACING_XXXS};
         }
         &:active {
-          transform: translateY(2px);
+          background-color: var(--link-color);
+          color: var(--link-color-hover);
         }
       }
 
@@ -127,6 +132,14 @@ const globalStyles = (
         margin: 0 -1rem;
         padding-left: 0.75rem;
         padding-right: 1rem;
+      }
+      &:not(pre) > code[class*='language-'] {
+        background: linear-gradient(
+          90deg,
+          var(--gradient-color-primary),
+          var(--gradient-color-secondary)
+        );
+        color: white;
       }
 
       h2,
