@@ -5,6 +5,8 @@ import { mediaQuery, sm, md } from './responsive';
 import { px2rem } from './utils';
 import * as tokens from './design-tokens';
 
+const defaultTransition = 'all 0.3s ease';
+
 const globalStyles = (
   <Global
     styles={css`
@@ -97,7 +99,7 @@ const globalStyles = (
         background-position: 100% 100%, 0 100%;
         background-repeat: no-repeat;
         color: var(--link-color);
-        transition: all 0.4s ease;
+        transition: ${defaultTransition};
         text-decoration: none;
 
         &:hover {
@@ -145,6 +147,31 @@ const globalStyles = (
         }
       }
 
+      .heading-link {
+        background: none;
+        border-bottom: 1px dotted transparent;
+        color: inherit;
+        text-decoration: none;
+        transition: ${defaultTransition};
+
+        &:hover {
+          border-bottom-color: grey;
+
+          svg {
+            opacity: 1;
+          }
+        }
+        &:active {
+          background-color: inherit;
+          color: inherit;
+        }
+        svg {
+          margin-left: ${tokens.TOKEN_SPACING_XS};
+          opacity: 0;
+          transition: ${defaultTransition};
+        }
+      }
+
       .gatsby-highlight {
         background-color: var(--code-bg);
         border-radius: 0.3rem;
@@ -176,36 +203,6 @@ const globalStyles = (
           var(--gradient-color-secondary)
         );
         color: white;
-      }
-
-      h2,
-      h3,
-      h4 {
-        .anchor {
-          background: none;
-          border: none;
-          color: inherit;
-          display: none;
-          margin-left: calc(-${tokens.TOKEN_SPACING_MD} - 2px);
-          margin-right: 2px;
-          opacity: 0;
-          padding: 0;
-          transition: opacity 0.1 ease;
-
-          ${mediaQuery(md)} {
-            display: inline;
-          }
-          &:hover {
-            color: var(--link-color);
-          }
-          svg {
-            fill: currentColor;
-          }
-        }
-        &:hover .anchor {
-          background: inherit;
-          opacity: 1;
-        }
       }
     `}
   />

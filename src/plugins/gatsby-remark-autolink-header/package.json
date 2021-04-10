@@ -1,0 +1,29 @@
+{
+  "name": "@viralganatra/gatsby-remark-autolink-header",
+  "description": "Gatsby plugin to autolink headers in markdown processed by Remark",
+  "version": "1.0.0",
+  "author": "Viral Ganatra <viral@viralganatra.com>",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "remark"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viralganatra/gatsby-remark-autolink-header.git"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "mdast-util-to-string": "^1.1.0",
+    "unist-util-visit": "^1.4.1"
+  },
+  "peerDependencies": {
+    "gatsby": "^3.0.0",
+    "react": "^16.9 || ^17",
+    "react-dom": "^16.9 || ^17"
+  }
+}

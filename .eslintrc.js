@@ -5,6 +5,7 @@ module.exports = {
     __PATH_PREFIX__: true,
   },
   rules: {
+    'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['node'] }],
     'react/react-in-jsx-scope': ['off'],
   },
 };
