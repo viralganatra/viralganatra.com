@@ -99,7 +99,7 @@ const globalStyles = (
         background-position: 100% 100%, 0 100%;
         background-repeat: no-repeat;
         color: var(--link-color);
-        transition: ${defaultTransition};
+        transition: ${defaultTransition}, background 0.3s linear;
         text-decoration: none;
 
         &:hover {

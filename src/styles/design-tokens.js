@@ -36,6 +36,11 @@ export const TOKEN_SPACING_LG = px2rem(32);
 export const TOKEN_SPACING_XL = px2rem(48);
 
 /**
+ * Pixel equivalent: 64px
+ */
+export const TOKEN_SPACING_XXL = px2rem(64);
+
+/**
  * Pixel equivalent: 28px
  */
 export const TOKEN_FONT_SIZE_ALPHA = px2rem(28);
