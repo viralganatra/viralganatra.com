@@ -7,5 +7,6 @@ module.exports = {
   rules: {
     'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['node'] }],
     'react/react-in-jsx-scope': ['off'],
+    'react/require-default-props': ['off'],
   },
 };

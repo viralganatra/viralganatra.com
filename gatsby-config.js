@@ -70,7 +70,7 @@ module.exports = {
         name: 'Pixels with purpose - a blog by Viral Ganatra',
         short_name: 'Pixels with purpose',
         start_url: '/',
-        background_color: '#E79367',
+        background_color: '#e79265',
         theme_color: '#ffffff',
         display: 'standalone',
         icon: 'content/assets/favicon-512x512.png',

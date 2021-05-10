@@ -1,11 +1,11 @@
 import { Global, css } from '@emotion/react';
+import styled from '@emotion/styled';
 import emotionNormalize from 'emotion-normalize';
 import bgWebp from '../../content/assets/bg.webp';
-import { mediaQuery, sm, md } from './responsive';
+import { mediaQuery, sm, md, lg } from './responsive';
 import { px2rem } from './utils';
-import * as tokens from './design-tokens';
-
-const defaultTransition = 'all 0.3s ease';
+import * as tokensWeb from './design-tokens/design-tokens-web';
+import * as tokensMobile from './design-tokens/design-tokens-mobile';
 
 const globalStyles = (
   <Global
@@ -13,34 +13,78 @@ const globalStyles = (
       ${emotionNormalize};
 
       :root {
-        --base-font-family: 'Open Sans', sans-serif;
-        --base-font-size: ${tokens.TOKEN_FONT_SIZE_BASE};
+        --font-family: 'Open Sans', sans-serif;
+        --font-size: ${tokensMobile.TOKEN_FONT_SIZE_BASE};
 
-        --text-color: #3a3c3e;
-        --text-color-highlight: #fff;
-        --bg: #e79367;
+        --color-text-hs: 0 0%;
+        --color-bg-hs: 21 73%;
+        --color-text: hsl(var(--color-text-hs) 20%);
+        --color-text-light: hsl(var(--color-text-hs) 50%);
+        --color-text-invert: #fff;
+        --color-bg: hsl(var(--color-bg-hs) 65%);
+        --color-bg-accent: #f5deb4;
+        --color-content-bg: rgba(255, 255, 255, 0.9);
+        --color-link: hsl(var(--color-bg-hs) 45%);
+        --color-link-hover: hsl(var(--color-bg-hs) 100%);
+        --color-link-gradient-1: #14b3ff;
+        --color-link-gradient-2: #4acc32;
+        --color-code-gradient-1: #e6007a;
+        --color-code-gradient-2: #9932cc;
+        --color-code-bg: #272727;
+        --color-code-highlight-line-bg: #636363;
+        --color-code-highlight-line-notch: #ff69b4;
 
-        --gradient-color-primary: #ff1493;
-        --gradient-color-secondary: #9932cc;
+        --text-size-alpha: ${tokensMobile.TOKEN_FONT_SIZE_ALPHA};
+        --text-size-beta: ${tokensMobile.TOKEN_FONT_SIZE_BETA};
+        --text-size-gamma: ${tokensMobile.TOKEN_FONT_SIZE_GAMMA};
+        --text-size-delta: ${tokensMobile.TOKEN_FONT_SIZE_DELTA};
+        --text-size-base: ${tokensMobile.TOKEN_FONT_SIZE_BASE};
+        --text-line-height-alpha: ${tokensMobile.TOKEN_LINE_HEIGHT_ALPHA};
+        --text-line-height-beta: ${tokensMobile.TOKEN_LINE_HEIGHT_BETA};
+        --text-line-height-gamma: ${tokensMobile.TOKEN_LINE_HEIGHT_GAMMA};
+        --text-line-height-delta: ${tokensMobile.TOKEN_LINE_HEIGHT_DELTA};
+        --text-line-height-base: ${tokensMobile.TOKEN_LINE_HEIGHT_BASE};
 
-        --link-color: #006fc6;
-        --link-color-hover: #fff;
-        --content-text-color: #111;
-        --content-bg: rgba(255, 255, 255, 0.9);
+        --spacing-xxxs: ${tokensMobile.TOKEN_SPACING_XXXS};
+        --spacing-xxs: ${tokensMobile.TOKEN_SPACING_XXS};
+        --spacing-xs: ${tokensMobile.TOKEN_SPACING_XS};
+        --spacing-sm: ${tokensMobile.TOKEN_SPACING_SM};
+        --spacing-md: ${tokensMobile.TOKEN_SPACING_MD};
+        --spacing-lg: ${tokensMobile.TOKEN_SPACING_LG};
+        --spacing-xl: ${tokensMobile.TOKEN_SPACING_XL};
+        --spacing-xxl: ${tokensMobile.TOKEN_SPACING_XXL};
+        --spacing-border-radius: ${tokensMobile.TOKEN_SPACING_XXS};
+        --spacing-content: ${tokensMobile.TOKEN_SPACING_SM};
 
-        --code-bg: #272727;
-        --code-highlight-line-bg: #636363;
-        --code-highlight-line-notch: hotpink;
-
-        --site-max-width: ${px2rem(1100)};
-
-        --spacing-content: ${tokens.TOKEN_SPACING_SM};
+        --transition: all 400ms ease;
+        --site-max-width: ${px2rem(1600)};
 
         ${mediaQuery(sm)} {
-          --spacing-content: ${tokens.TOKEN_SPACING_MD};
+          --spacing-content: ${tokensMobile.TOKEN_SPACING_MD};
         }
         ${mediaQuery(md)} {
-          --spacing-content: ${tokens.TOKEN_SPACING_XL};
+          --font-size: ${tokensWeb.TOKEN_FONT_SIZE_BASE};
+
+          --text-size-alpha: ${tokensWeb.TOKEN_FONT_SIZE_ALPHA};
+          --text-size-beta: ${tokensWeb.TOKEN_FONT_SIZE_BETA};
+          --text-size-gamma: ${tokensWeb.TOKEN_FONT_SIZE_GAMMA};
+          --text-size-delta: ${tokensWeb.TOKEN_FONT_SIZE_DELTA};
+          --text-size-base: ${tokensWeb.TOKEN_FONT_SIZE_BASE};
+          --text-line-height-alpha: ${tokensWeb.TOKEN_LINE_HEIGHT_ALPHA};
+          --text-line-height-beta: ${tokensWeb.TOKEN_LINE_HEIGHT_BETA};
+          --text-line-height-gamma: ${tokensWeb.TOKEN_LINE_HEIGHT_GAMMA};
+          --text-line-height-delta: ${tokensWeb.TOKEN_LINE_HEIGHT_DELTA};
+          --text-line-height-base: ${tokensWeb.TOKEN_LINE_HEIGHT_BASE};
+
+          --spacing-xxxs: ${tokensWeb.TOKEN_SPACING_XXXS};
+          --spacing-xxs: ${tokensWeb.TOKEN_SPACING_XXS};
+          --spacing-xs: ${tokensWeb.TOKEN_SPACING_XS};
+          --spacing-sm: ${tokensWeb.TOKEN_SPACING_SM};
+          --spacing-md: ${tokensWeb.TOKEN_SPACING_MD};
+          --spacing-lg: ${tokensWeb.TOKEN_SPACING_LG};
+          --spacing-xl: ${tokensWeb.TOKEN_SPACING_XL};
+          --spacing-xxl: ${tokensWeb.TOKEN_SPACING_XXL};
+          --spacing-content: ${tokensWeb.TOKEN_SPACING_XL};
         }
       }
 
@@ -50,12 +94,17 @@ const globalStyles = (
         box-sizing: inherit;
       }
       html {
-        background: var(--bg) url(${bgWebp}) fixed 0 0;
+        background-size: contain;
+        background: var(--color-bg) url(${bgWebp}) fixed 0 0;
         box-sizing: border-box;
-        color: var(--text-color);
-        font-family: var(--base-font-family);
-        font-size: var(--base-font-size);
-        line-height: ${tokens.TOKEN_LINE_HEIGHT_BASE};
+        color: var(--color-text);
+        font-family: var(--font-family);
+        font-size: var(--font-size);
+        line-height: var(--text-line-height-base);
+
+        ${mediaQuery(lg)} {
+          background-size: auto;
+        }
 
         /* one day...
         background-image: image-set(
@@ -78,48 +127,52 @@ const globalStyles = (
         font-weight: normal;
       }
       h1 {
-        font-size: ${tokens.TOKEN_FONT_SIZE_ALPHA};
-        line-height: ${tokens.TOKEN_LINE_HEIGHT_ALPHA};
+        font-size: var(--text-size-alpha);
+        line-height: var(--text-line-height-alpha);
       }
       h2 {
-        font-size: ${tokens.TOKEN_FONT_SIZE_BETA};
-        line-height: ${tokens.TOKEN_LINE_HEIGHT_BETA};
+        font-size: var(--text-size-beta);
+        line-height: var(--text-line-height-beta);
       }
       h3 {
-        font-size: ${tokens.TOKEN_FONT_SIZE_GAMMA};
-        line-height: ${tokens.TOKEN_LINE_HEIGHT_GAMMA};
+        font-size: var(--text-size-gamma);
+        line-height: var(--text-line-height-gamma);
       }
       h4 {
         font-size: var(--base-font-size);
       }
       a {
-        background: linear-gradient(to right, var(--link-color), var(--link-color)),
-          linear-gradient(to right, var(--gradient-color-primary), var(--gradient-color-secondary));
-        background-size: 100% ${tokens.TOKEN_SPACING_XXXS}, 0 ${tokens.TOKEN_SPACING_XXXS};
+        --border-hover: 0 var(--spacing-xxxs), 100% var(--spacing-xxxs);
+
+        background: linear-gradient(to right, var(--color-link), var(--color-link)),
+          linear-gradient(to right, var(--color-link-gradient-1), var(--color-link-gradient-2));
+        background-size: 100% var(--spacing-xxxs), 0 var(--spacing-xxxs);
         background-position: 100% 100%, 0 100%;
         background-repeat: no-repeat;
-        color: var(--link-color);
-        transition: ${defaultTransition}, background 0.3s linear;
+        color: var(--color-link);
+        padding: 0 2px;
+        transition: var(--transition);
         text-decoration: none;
 
-        &:hover {
-          background-size: 0 ${tokens.TOKEN_SPACING_XXXS}, 100% ${tokens.TOKEN_SPACING_XXXS};
+        &:hover:not(:active) {
+          background-size: var(--border-hover);
         }
         &:active {
-          background-color: var(--link-color);
-          color: var(--link-color-hover);
+          background-color: var(--color-link);
+          border-radius: var(--spacing-border-radius);
+          color: var(--color-link-hover);
         }
       }
       blockquote {
-        border-left: 5px solid var(--link-color);
-        font-size: ${tokens.TOKEN_FONT_SIZE_BETA};
-        line-height: ${tokens.TOKEN_LINE_HEIGHT_BETA};
-        margin: ${tokens.TOKEN_SPACING_LG} 0;
-        padding: ${tokens.TOKEN_SPACING_XXS} ${tokens.TOKEN_SPACING_XS};
-        padding-left: ${tokens.TOKEN_SPACING_MD};
+        border-left: 5px solid var(--color-link);
+        font-size: var(--text-size-beta);
+        line-height: var(--text-line-height-beta);
+        margin: var(--spacing-lg) 0;
+        padding: var(--spacing-xxs) var(--spacing-xs);
+        padding-left: var(--spacing-md);
 
         ${mediaQuery(md)} {
-          margin: ${tokens.TOKEN_SPACING_LG} ${tokens.TOKEN_SPACING_XL};
+          margin: var(--spacing-lg) var(--spacing-xl);
         }
         p {
           quotes: '“' '”' '‘' '’';
@@ -146,13 +199,16 @@ const globalStyles = (
           }
         }
       }
+      svg {
+        fill: currentColor;
+      }
 
       .heading-link {
         background: none;
         border-bottom: 1px dotted transparent;
         color: inherit;
         text-decoration: none;
-        transition: ${defaultTransition};
+        transition: var(--transition);
 
         &:hover {
           border-bottom-color: grey;
@@ -166,15 +222,15 @@ const globalStyles = (
           color: inherit;
         }
         svg {
-          margin-left: ${tokens.TOKEN_SPACING_XS};
+          margin-left: var(--spacing-xs);
           opacity: 0;
-          transition: ${defaultTransition};
+          transition: var(--transition);
         }
       }
 
       .gatsby-highlight {
-        background-color: var(--code-bg);
-        border-radius: 0.3rem;
+        background-color: var(--color-code-bg);
+        border-radius: var(--spacing-border-radius);
         margin: 0.5rem 0;
         padding: 1rem;
         overflow: auto;
@@ -189,8 +245,8 @@ const globalStyles = (
         }
       }
       .gatsby-highlight-code-line {
-        background-color: var(--code-highlight-line-bg);
-        border-left: 0.25rem solid var(--code-highlight-line-notch);
+        background-color: var(--color-code-highlight-line-bg);
+        border-left: 0.25rem solid var(--color-code-highlight-line-notch);
         display: block;
         margin: 0 -1rem;
         padding-left: 0.75rem;
@@ -199,13 +255,47 @@ const globalStyles = (
       &:not(pre) > code[class*='language-'] {
         background: linear-gradient(
           90deg,
-          var(--gradient-color-primary),
-          var(--gradient-color-secondary)
+          var(--color-code-gradient-1),
+          var(--color-code-gradient-2)
         );
         color: white;
       }
     `}
   />
 );
+
+export const Main = styled.main`
+  background-color: var(--color-content-bg);
+  padding: var(--spacing-content) 0;
+  position: relative;
+
+  // Using the clip path on the main element causes weird lag/tearing in Chrome
+  &:before {
+    ${mediaQuery(sm)} {
+      --notch: 3rem;
+
+      background-color: var(--color-content-bg);
+      clip-path: polygon(100% 0, 100% 100%, 0 100%);
+      content: '';
+      height: var(--notch);
+      left: 0;
+      position: absolute;
+      top: calc(var(--notch) * -1);
+      width: 100%;
+    }
+    ${mediaQuery(md)} {
+      --notch: 5rem;
+    }
+    ${mediaQuery(lg)} {
+      --notch: 8rem;
+    }
+  }
+`;
+
+export const contentWrapper = css`
+  margin: 0 auto;
+  max-width: var(--site-max-width);
+  padding: 0 var(--spacing-content);
+`;
 
 export default globalStyles;
