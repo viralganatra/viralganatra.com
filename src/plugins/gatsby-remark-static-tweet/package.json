@@ -1,0 +1,37 @@
+{
+  "name": "@viralganatra/gatsby-remark-static-tweet",
+  "description": "Gatsby Remark plugin to embed static tweets without JavaScript",
+  "version": "1.0.0",
+  "author": "Viral Ganatra <viral@viralganatra.com>",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "remark",
+    "mdx",
+    "twitter",
+    "tweet"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viralganatra/gatsby-remark-static-tweet.git"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "date-fns": "^2.21.3",
+    "hast-util-from-parse5": "^6.0.1",
+    "hast-util-to-html": "^7.1.3",
+    "mdast-util-from-markdown": "^0.8.5",
+    "mdast-util-to-hast": "^10.2.0",
+    "node-fetch": "^2.6.1",
+    "parse5": "^6.0.1",
+    "unist-util-visit": "^1.4.1"
+  },
+  "peerDependencies": {
+    "gatsby": "^3",
+    "gatsby-plugin-mdx": "^2"
+  }
+}
