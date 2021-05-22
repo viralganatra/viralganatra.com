@@ -1,3 +1,5 @@
+require('dotenv-flow').config();
+
 module.exports = {
   siteMetadata: {
     title: 'Viral Ganatra',
@@ -38,6 +40,12 @@ module.exports = {
       resolve: 'gatsby-plugin-mdx',
       options: {
         gatsbyRemarkPlugins: [
+          {
+            resolve: require.resolve('./src/plugins/gatsby-remark-static-tweet'),
+            options: {
+              apiToken: process.env.TWITTER_BEARER_TOKEN,
+            },
+          },
           {
             resolve: 'gatsby-remark-images',
             options: {

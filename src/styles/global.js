@@ -6,6 +6,8 @@ import { mediaQuery, sm, md, lg } from './responsive';
 import { px2rem } from './utils';
 import * as tokensWeb from './design-tokens/design-tokens-web';
 import * as tokensMobile from './design-tokens/design-tokens-mobile';
+import IconTwitter from '../../content/assets/icon-twitter.svg';
+import IconHeart from '../../content/assets/icon-heart.svg';
 
 const globalStyles = (
   <Global
@@ -33,6 +35,10 @@ const globalStyles = (
         --color-code-bg: #272727;
         --color-code-highlight-line-bg: #636363;
         --color-code-highlight-line-notch: #ff69b4;
+        --color-twitter: #1da1f2;
+        --color-twitter-card-bg: #fff;
+        --color-twitter-card-border: #e1e8ed;
+        --color-twitter-video-bg: #000;
 
         --text-size-alpha: ${tokensMobile.TOKEN_FONT_SIZE_ALPHA};
         --text-size-beta: ${tokensMobile.TOKEN_FONT_SIZE_BETA};
@@ -163,7 +169,7 @@ const globalStyles = (
           color: var(--color-link-hover);
         }
       }
-      blockquote {
+      blockquote:not(.twitter-card) {
         border-left: 5px solid var(--color-link);
         font-size: var(--text-size-beta);
         line-height: var(--text-line-height-beta);
@@ -259,6 +265,118 @@ const globalStyles = (
           var(--color-code-gradient-2)
         );
         color: white;
+      }
+
+      .twitter-card {
+        --spacing: var(--spacing-sm);
+        --border-radius: 8px;
+
+        background-color: var(--color-twitter-card-bg);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-twitter-card-border);
+        margin: var(--spacing-md) 0;
+        max-width: 550px;
+        padding: var(--spacing);
+
+        a {
+          background: none;
+          color: inherit;
+          padding: 0;
+        }
+      }
+      .twitter-card-header {
+        display: grid;
+        grid-template-columns: max-content auto max-content;
+      }
+      .twitter-card-avatar {
+        position: relative;
+
+        &:before {
+          border-radius: 50%;
+          content: '';
+          height: 100%;
+          left: 0;
+          position: absolute;
+          top: 0;
+          transition: all 200ms ease;
+          width: 100%;
+          z-index: 2;
+        }
+
+        &:hover:before {
+          background: rgba(0, 0, 0, 0.2);
+        }
+      }
+      .twitter-card-profile-image {
+        border-radius: 50%;
+        display: block;
+        position: relative;
+      }
+      .twitter-card-author {
+        align-self: center;
+        display: block;
+        font-size: var(--text-size-delta);
+        line-height: var(--text-line-height-delta);
+        margin: 0 var(--spacing-xs);
+
+        &:hover .twitter-card-handle {
+          text-decoration: underline;
+        }
+      }
+      .twitter-card-name,
+      .twitter-card-handle {
+        display: block;
+      }
+      .twitter-card-footer {
+        align-items: center;
+        border-top: 1px solid var(--color-twitter-card-border);
+        display: flex;
+        font-size: var(--text-size-delta);
+        line-height: var(--text-line-height-delta);
+        margin-top: var(--spacing);
+        padding-top: var(--spacing);
+
+        a:hover {
+          color: var(--color-twitter);
+        }
+      }
+      .twitter-card-likes {
+        align-items: center;
+        display: flex;
+        margin-right: var(--spacing-sm);
+
+        svg {
+          margin-right: var(--spacing-xxs);
+        }
+      }
+      .twitter-card-icon-brand,
+      .twitter-card-icon-like {
+        background-image: url(${IconTwitter});
+        background-repeat: no-repeat;
+        background-size: contain;
+        display: inline-block;
+        height: 1.25em;
+        width: 1.25em;
+      }
+      .twitter-card-icon-like {
+        background-image: url(${IconHeart});
+        margin-right: 2px;
+      }
+      .twitter-card-video-container {
+        background: var(--color-twitter-video-bg);
+        border-radius: var(--border-radius);
+        display: flex;
+        justify-content: center;
+      }
+      .twitter-card-video {
+        max-width: 100%;
+      }
+      .twitter-card-photo {
+        border-radius: var(--border-radius);
+        display: block;
+        height: auto;
+        max-width: 100%;
+        object-fit: contain;
       }
     `}
   />
