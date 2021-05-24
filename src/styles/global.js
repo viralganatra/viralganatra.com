@@ -237,7 +237,7 @@ const globalStyles = (
       .gatsby-highlight {
         background-color: var(--color-code-bg);
         border-radius: var(--spacing-border-radius);
-        margin: 0.5rem 0;
+        margin: var(--spacing-md) 0;
         padding: 1rem;
         overflow: auto;
 
@@ -326,6 +326,10 @@ const globalStyles = (
       .twitter-card-name,
       .twitter-card-handle {
         display: block;
+      }
+      .twitter-card-logo {
+        align-self: flex-start;
+        display: inherit;
       }
       .twitter-card-footer {
         align-items: center;
