@@ -226,7 +226,7 @@ export default function BlogIndex({ data, location }) {
                 <PostTitle>
                   <Link to={fields.slug}>{frontmatter.title}</Link>
                 </PostTitle>
-                <time dateTime={firstPost.frontmatter.isoDate}>{frontmatter.date}</time>
+                <time dateTime={frontmatter.isoDate}>{frontmatter.date}</time>
               </header>
               <PostExcerpt dangerouslySetInnerHTML={{ __html: excerpt }} />
             </article>
