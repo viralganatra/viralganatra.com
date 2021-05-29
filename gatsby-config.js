@@ -52,7 +52,7 @@ module.exports = {
               maxWidth: 800,
               withWebp: true,
               withAvif: true,
-              linkImagesToOriginal: false,
+              useMozJpeg: true,
             },
           },
           {
