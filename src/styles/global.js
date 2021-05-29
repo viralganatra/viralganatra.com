@@ -135,6 +135,7 @@ const globalStyles = (
       h1 {
         font-size: var(--text-size-alpha);
         line-height: var(--text-line-height-alpha);
+        margin-top: 0;
       }
       h2 {
         font-size: var(--text-size-beta);

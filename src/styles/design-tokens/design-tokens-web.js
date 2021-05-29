@@ -78,7 +78,7 @@ export const TOKEN_LINE_HEIGHT_BETA = px2rem(34);
 /**
  * Pixel equivalent: 28px
  */
-export const TOKEN_LINE_HEIGHT_GAMMA = px2rem(28);
+export const TOKEN_LINE_HEIGHT_GAMMA = px2rem(31);
 
 /**
  * Pixel equivalent: 21px

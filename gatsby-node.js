@@ -3,15 +3,23 @@ const { createFilePath } = require(`gatsby-source-filesystem`);
 
 exports.createPages = async ({ graphql, actions, reporter }) => {
   const { createPage } = actions;
-  const blogPost = path.resolve('./src/components/blog-post.js');
+
+  const blogPostTemplate = path.resolve('./src/templates/blog.js');
+  const tagTemplate = path.resolve('./src/templates/tags.js');
+
   const result = await graphql(`
     {
-      allMdx(sort: { fields: [frontmatter___date], order: DESC }, limit: 1000) {
+      blogPosts: allMdx(sort: { fields: [frontmatter___date], order: DESC }, limit: 1000) {
         nodes {
           id
           fields {
             slug
           }
+        }
+      }
+      tagsGroup: allMdx(limit: 2000) {
+        group(field: frontmatter___tags) {
+          fieldValue
         }
       }
     }
@@ -22,7 +30,9 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
     return;
   }
 
-  const posts = result.data.allMdx.nodes;
+  const { blogPosts, tagsGroup } = result.data;
+  const posts = blogPosts.nodes;
+  const tags = tagsGroup.group;
 
   if (posts.length > 0) {
     posts.forEach((post, index) => {
@@ -31,11 +41,23 @@ exports.createPages = async ({ graphql, actions, reporter }) => {
 
       createPage({
         path: post.fields.slug,
-        component: blogPost,
+        component: blogPostTemplate,
         context: {
           id: post.id,
           previousPostId,
           nextPostId,
+        },
+      });
+    });
+  }
+
+  if (tags.length > 0) {
+    tags.forEach((tag) => {
+      createPage({
+        path: `/tags/${tag.fieldValue}`,
+        component: tagTemplate,
+        context: {
+          tag: tag.fieldValue,
         },
       });
     });

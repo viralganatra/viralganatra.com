@@ -1,9 +1,11 @@
 import PropTypes from 'prop-types';
-import { Link, graphql } from 'gatsby';
+import { graphql } from 'gatsby';
 import styled from '@emotion/styled';
 import App from '../components/app';
 import SEO from '../components/seo';
 import Header from '../components/header';
+import Tags from '../components/tags';
+import PostExcerpt from '../components/post-excerpt';
 import { HEADER_SIZE_LARGE } from '../constants/header';
 import { contentWrapper, Main } from '../styles/global';
 import { mediaQuery, sm, md, lg } from '../styles/responsive';
@@ -16,6 +18,10 @@ export const pageQuery = graphql`
       }
     }
     allMdx(sort: { fields: [frontmatter___date], order: DESC }) {
+      group(field: frontmatter___tags) {
+        tag: fieldValue
+        count: totalCount
+      }
       nodes {
         excerpt(pruneLength: 280)
         fields {
@@ -54,27 +60,6 @@ const LatestPostTagsWrapper = styled.div`
   }
 `;
 
-const PostTitle = styled.h3`
-  margin-top: 0;
-  font-size: var(--text-size-beta);
-  line-height: var(--text-line-height-beta);
-
-  a {
-    color: var(--color-text);
-
-    &:active {
-      color: var(--color-text-invert);
-    }
-  }
-`;
-
-const PostExcerpt = styled.p`
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-`;
-
 const LatestPost = styled.div`
   background: var(--color-bg-accent);
   margin-bottom: var(--spacing-sm);
@@ -86,7 +71,7 @@ const LatestPost = styled.div`
   }
 
   ${mediaQuery(sm)} {
-    ${PostTitle} {
+    h3 {
       font-size: var(--text-size-alpha);
       line-height: var(--text-line-height-alpha);
     }
@@ -97,11 +82,10 @@ const LatestPost = styled.div`
     box-shadow: var(--spacing-xs) var(--spacing-xs) 0 var(--color-link);
     grid-column: 4 / -1;
 
-    ${PostExcerpt} {
+    p {
       font-size: var(--text-size-gamma);
       line-height: var(--text-line-height-gamma);
     }
-
     article {
       padding: var(--spacing-md);
     }
@@ -128,31 +112,8 @@ const LatestText = styled.span`
   }
 `;
 
-const Tags = styled.div`
+const TagsWrapper = styled.div`
   grid-column: 1 / 4;
-`;
-
-const TagList = styled.ul`
-  display: flex;
-  flex-wrap: wrap;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-
-  li {
-    margin: 0 var(--spacing-xs) var(--spacing-xs) 0;
-  }
-`;
-
-const Tag = styled.a`
-  background-color: var(--color-link);
-  color: var(--color-link-hover);
-  display: block;
-  padding: 0 var(--spacing-xxs);
-
-  &:hover:not(:active) {
-    background-color: var(--color-text);
-  }
 `;
 
 const Posts = styled.div`
@@ -172,9 +133,11 @@ const Posts = styled.div`
   }
 `;
 
-export default function BlogIndex({ data, location }) {
+export default function HomePage({ data, location }) {
   const siteTitle = data.site.siteMetadata.title;
-  const [firstPost, ...otherPosts] = data.allMdx.nodes;
+  const { nodes, group: tags } = data.allMdx;
+  const [firstPost, ...otherPosts] = nodes;
+  const tagsByCount = tags.sort((a, b) => b.count - a.count).map(({ tag }) => tag);
 
   return (
     <App location={location} title={siteTitle}>
@@ -186,50 +149,29 @@ export default function BlogIndex({ data, location }) {
 
       <Main>
         <LatestPostTagsWrapper>
-          <Tags>
+          <TagsWrapper>
             <h4>Search by tag...</h4>
-
-            <TagList>
-              <li>
-                <Tag href="#">test</Tag>
-              </li>
-              <li>
-                <Tag href="#">css grid</Tag>
-              </li>
-              <li>
-                <Tag href="#">js</Tag>
-              </li>
-              <li>
-                <a href="/">All tags</a>
-              </li>
-            </TagList>
-          </Tags>
+            <Tags tags={tagsByCount} canNavigateToAllTags />
+          </TagsWrapper>
 
           <LatestPost>
             <LatestText>Latest</LatestText>
-            <article>
-              <header>
-                <PostTitle>
-                  <Link to={firstPost.fields.slug}>{firstPost.frontmatter.title}</Link>
-                </PostTitle>
-              </header>
-              <time dateTime={firstPost.frontmatter.isoDate}>{firstPost.frontmatter.date}</time>
-              <PostExcerpt dangerouslySetInnerHTML={{ __html: firstPost.excerpt }} />
-            </article>
+            <PostExcerpt
+              frontmatter={firstPost.frontmatter}
+              fields={firstPost.fields}
+              excerpt={firstPost.excerpt}
+            />
           </LatestPost>
         </LatestPostTagsWrapper>
 
         <Posts>
           {otherPosts.map(({ frontmatter, fields, excerpt }) => (
-            <article key={fields.slug}>
-              <header>
-                <PostTitle>
-                  <Link to={fields.slug}>{frontmatter.title}</Link>
-                </PostTitle>
-                <time dateTime={frontmatter.isoDate}>{frontmatter.date}</time>
-              </header>
-              <PostExcerpt dangerouslySetInnerHTML={{ __html: excerpt }} />
-            </article>
+            <PostExcerpt
+              key={fields.slug}
+              frontmatter={frontmatter}
+              fields={fields}
+              excerpt={excerpt}
+            />
           ))}
         </Posts>
       </Main>
@@ -237,7 +179,7 @@ export default function BlogIndex({ data, location }) {
   );
 }
 
-BlogIndex.propTypes = {
+HomePage.propTypes = {
   data: PropTypes.shape({
     site: PropTypes.shape({
       siteMetadata: PropTypes.shape({
@@ -245,17 +187,24 @@ BlogIndex.propTypes = {
       }).isRequired,
     }).isRequired,
     allMdx: PropTypes.shape({
+      group: PropTypes.arrayOf(
+        PropTypes.shape({
+          tag: PropTypes.string.isRequired,
+          count: PropTypes.number.isRequired,
+        }),
+      ),
       nodes: PropTypes.arrayOf(
         PropTypes.shape({
           frontmatter: PropTypes.shape({
-            title: PropTypes.string,
+            title: PropTypes.string.isRequired,
             date: PropTypes.string.isRequired,
+            isoDate: PropTypes.isRequired,
           }),
           fields: PropTypes.shape({
             slug: PropTypes.string.isRequired,
           }),
           excerpt: PropTypes.string.isRequired,
-        }),
+        }).isRequired,
       ),
     }),
   }).isRequired,

@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { Link, graphql } from 'gatsby';
 import styled from '@emotion/styled';
 import { MDXRenderer } from 'gatsby-plugin-mdx';
-import App from './app';
-import Header from './header';
-import SEO from './seo';
+import App from '../components/app';
+import Header from '../components/header';
+import SEO from '../components/seo';
+import Tags from '../components/tags';
 import { mediaQuery, md, lg } from '../styles/responsive';
 import { Main, contentWrapper } from '../styles/global';
 
@@ -25,6 +26,7 @@ export const pageQuery = graphql`
         title
         date(formatString: "DD MMMM YYYY")
         isoDate: date(formatString: "YYYY-MM-DD")
+        tags
       }
       tableOfContents
     }
@@ -72,7 +74,7 @@ const Article = styled.article`
     margin-top: var(--spacing-md);
   }
   .gatsby-resp-image-wrapper {
-    margin-bottom: var(--spacing-md);
+    margin: 0 0 var(--spacing-md) 0 !important;
   }
 `;
 
@@ -91,10 +93,6 @@ const Sidebar = styled.aside`
   ${mediaQuery(md)} {
     display: block;
   }
-`;
-
-const Title = styled.h1`
-  margin-top: 0;
 `;
 
 const ArticleMeta = styled.div`
@@ -205,7 +203,7 @@ export default function BlogPostTemplate({ data, location }) {
         <ContentWrapper>
           <Article itemScope itemType="http://schema.org/Article">
             <Heading>
-              <Title itemProp="headline">{post.frontmatter.title}</Title>
+              <h1 itemProp="headline">{post.frontmatter.title}</h1>
               <ArticleMeta>
                 <time dateTime={post.frontmatter.isoDate} itemProp="datePublished">
                   {post.frontmatter.date}
@@ -213,6 +211,7 @@ export default function BlogPostTemplate({ data, location }) {
                 <Separator>·</Separator>
                 {post.timeToRead} min read
               </ArticleMeta>
+              <Tags tags={post.frontmatter.tags} />
             </Heading>
             {post.tableOfContents.items ? (
               <Sidebar>
