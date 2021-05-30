@@ -389,6 +389,7 @@ const globalStyles = (
 
 export const Main = styled.main`
   background-color: var(--color-content-bg);
+  flex-grow: 1;
   padding: var(--spacing-content) 0;
   position: relative;
 
