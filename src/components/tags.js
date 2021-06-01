@@ -35,12 +35,12 @@ export default function Tags({ tags = [], canNavigateToAllTags = false, classNam
     <TagList className={className}>
       {tags.map((tag) => (
         <li key={tag}>
-          <Tag to={`/tags/${tag}`}>{tag}</Tag>
+          <Tag to={`/tags/${tag}/`}>{tag}</Tag>
         </li>
       ))}
       {canNavigateToAllTags ? (
         <li>
-          <Link to="/tags">All tags</Link>
+          <Link to="/tags/">All tags</Link>
         </li>
       ) : null}
     </TagList>

@@ -76,7 +76,7 @@ export default function TagsPage({ data }) {
 
               return (
                 <li key={tag}>
-                  <TagLink to={`/tags/${tag}`}>{tag}</TagLink>
+                  <TagLink to={`/tags/${tag}/`}>{tag}</TagLink>
                   <TagCount>
                     {count} {postCount}
                   </TagCount>
