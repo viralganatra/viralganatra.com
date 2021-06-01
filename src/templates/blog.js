@@ -7,6 +7,7 @@ import App from '../components/app';
 import Header from '../components/header';
 import SEO from '../components/seo';
 import Tags from '../components/tags';
+import Bio from '../components/bio';
 import { mediaQuery, md, lg } from '../styles/responsive';
 import { Main, contentWrapper } from '../styles/global';
 
@@ -150,7 +151,14 @@ const NavList = styled.ul`
   flex-wrap: wrap;
   justify-content: space-between;
   list-style: none;
+  margin: 0;
   padding: 0;
+`;
+
+const StyledBio = styled.footer`
+  border: 1px solid var(--color-border);
+  border-width: 1px 0;
+  margin: var(--spacing-md) 0;
 `;
 
 const getHeadingIds = (items) => items?.map((i) => i.url) ?? [];
@@ -234,7 +242,10 @@ export default function BlogPostTemplate({ data, location }) {
             </Body>
           </Article>
 
-          <hr />
+          <StyledBio>
+            <Bio />
+          </StyledBio>
+
           <nav>
             <NavList>
               <li>

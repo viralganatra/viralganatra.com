@@ -1,38 +1,33 @@
-import { useStaticQuery, graphql } from 'gatsby';
-import { GatsbyImage, getImage } from 'gatsby-plugin-image';
+import React from 'react';
+import { useStaticQuery, graphql, Link } from 'gatsby';
 
 export default function Bio() {
   const data = useStaticQuery(graphql`
     query BioQuery {
-      avatar: file(absolutePath: { regex: "/profile-pic.jpg/" }) {
-        childImageSharp {
-          gatsbyImageData(width: 50, formats: [AUTO, WEBP, AVIF])
-        }
-      }
       site {
         siteMetadata {
+          tagline
           author {
             name
             summary
           }
           social {
-            twitter
+            github
           }
         }
       }
     }
   `);
 
-  const { author, social } = data.site.siteMetadata;
-  const image = getImage(data.avatar);
+  const { tagline, author, social } = data.site.siteMetadata;
 
   return (
     <div>
-      <GatsbyImage image={image} alt={author.name} />
+      <h3>{tagline}</h3>
       <p>
-        Written by <strong>{author.name}</strong> {author.summary}
-        {` `}
-        <a href={`https://twitter.com/${social.twitter}`}>You should follow him on Twitter</a>
+        A technical blog by <Link to={social.github}>{author.name}</Link>
+        <br />
+        {author.summary}
       </p>
     </div>
   );

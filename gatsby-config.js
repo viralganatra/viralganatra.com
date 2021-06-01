@@ -3,14 +3,16 @@ require('dotenv-flow').config();
 module.exports = {
   siteMetadata: {
     title: 'Viral Ganatra',
+    tagline: 'Pixels with purpose',
     author: {
       name: 'Viral Ganatra',
-      summary: 'Passionate engineer working on the web',
+      summary: 'Principal engineer at Third Bridge working on the web, sharing through experience.',
     },
     description: 'A technical blog by Viral Ganatra',
     siteUrl: 'https://www.viralganatra.com',
     social: {
       twitter: 'viralganatra16',
+      github: 'https://github.com/viralganatra',
     },
   },
   plugins: [

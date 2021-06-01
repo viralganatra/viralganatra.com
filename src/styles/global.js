@@ -26,6 +26,7 @@ const globalStyles = (
         --color-bg: hsl(var(--color-bg-hs) 65%);
         --color-bg-accent: #f5deb4;
         --color-content-bg: rgba(255, 255, 255, 0.9);
+        --color-border: hsl(var(--color-text-hs) 60%);
         --color-link: hsl(var(--color-bg-hs) 45%);
         --color-link-hover: hsl(var(--color-bg-hs) 100%);
         --color-link-gradient-1: #14b3ff;
