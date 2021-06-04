@@ -113,13 +113,14 @@ const TableOfContents = styled.div`
 `;
 
 const TableOfContentsHeading = styled.h3`
-  border-bottom: 2px solid;
   border-image-slice: 1;
   border-image-source: linear-gradient(
     to right,
     var(--color-link-gradient-1),
     var(--color-link-gradient-2)
   );
+  border-style: solid;
+  border-width: 0 0 2px 0;
   color: var(--color-text-light);
   font-size: var(--text-size-delta);
   font-weight: normal;
