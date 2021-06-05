@@ -50,12 +50,12 @@ function getTweetImage(tweetMedia) {
 function getTweetVideo(tweetMedia) {
   const videoVariants = tweetMedia.video_info.variants;
   const [videoWithLowestBitrate] = videoVariants.sort((a, b) => a.bitrate - b.bitrate);
-  const [height, width] = videoWithLowestBitrate.url.split('/').reverse()[1].split('x');
+  const [width, height] = videoWithLowestBitrate.url.split('/').reverse()[1].split('x');
   const image = getTweetImage(tweetMedia);
 
   return {
-    height,
     width,
+    height,
     image,
     type: tweetMedia.type,
     url: videoWithLowestBitrate.url,
