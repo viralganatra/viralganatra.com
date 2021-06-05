@@ -114,7 +114,14 @@ function tweetTemplate(tweet) {
     tweet.media?.type === 'video'
       ? `
     <div class="twitter-card-video-container">
-      <video class="twitter-card-video" loop controls>
+      <video
+        class="twitter-card-video"
+        poster="${tweet.media.image.url}"
+        width="${tweet.media.width}"
+        height="${tweet.media.height}"
+        loop
+        controls
+      >
         <source src="${tweet.media.url}" type="${tweet.media.contentType}">
       </video>
     </div>`
