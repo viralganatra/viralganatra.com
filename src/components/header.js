@@ -41,12 +41,19 @@ const Logo = styled.div`
     position: absolute;
     text-shadow: none;
     top: 6px;
+    transition: all 300ms ease;
     width: 100%;
     z-index: -1;
 
     ${mediaQuery(lg)} {
       left: 9px;
       top: 10px;
+    }
+  }
+  ${mediaQuery(lg)} {
+    &:hover:after {
+      left: 1px;
+      top: 1px;
     }
   }
 `;
