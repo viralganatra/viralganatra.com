@@ -84,13 +84,17 @@ module.exports = {
         theme_color: '#ffffff',
         display: 'standalone',
         icon: 'content/assets/favicon-512x512.png',
-        cache_busting_mode: 'name',
+        cache_busting_mode: 'none',
       },
     },
     'gatsby-plugin-react-helmet',
     {
       resolve: 'gatsby-plugin-offline',
-      options: {},
+      options: {
+        workboxConfig: {
+          globPatterns: ['**/icon-path*'],
+        },
+      },
     },
   ],
 };
