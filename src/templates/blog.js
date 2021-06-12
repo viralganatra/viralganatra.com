@@ -150,6 +150,7 @@ const QuickLinks = styled.ol`
 const NavList = styled.ul`
   display: flex;
   flex-wrap: wrap;
+  gap: var(--spacing-sm);
   justify-content: space-between;
   list-style: none;
   margin: 0;
