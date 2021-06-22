@@ -25,7 +25,7 @@ export default function Bio() {
     <div>
       <h3>{tagline}</h3>
       <p>
-        A technical blog by <Link to={social.github}>{author.name}</Link>
+        A technical blog by <a href={social.github}>{author.name}</a>
         <br />
         {author.summary}
       </p>
