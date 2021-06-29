@@ -64,7 +64,7 @@ const globalStyles = (
         --spacing-content: ${tokensMobile.TOKEN_SPACING_SM};
 
         --transition: all 400ms ease;
-        --site-max-width: ${px2rem(1600)};
+        --site-max-width: ${px2rem(1300)};
 
         ${mediaQuery(sm)} {
           --spacing-content: ${tokensMobile.TOKEN_SPACING_MD};
