@@ -1,0 +1,952 @@
+---
+title: 'Docker Node.js development to production best practices with security in mind'
+metaTitle: 'Docker Node.js dev to prod secure best practices'
+date: '2021-07-03'
+tags:
+  - docker
+  - javascript
+---
+
+I love working with Node.js; I find the language so expressive that it makes me get out of bed every morning to come to work! When it comes to writing enterprise applications and APIs in Node.js I've come to embrace [Docker](https://www.docker.com/). Docker allows my team to write applications without having to worry about dependencies on host machines, avoids compatibility issues between different operating systems, gives the ability to develop closer to the production environment and provides a much smoother developer experience when working locally.
+
+When it comes to Node.js and Docker there are unfortunately a lot of out-of-date and incomplete examples on the web. There are very few resources that explain how to create and manage optimised Docker images for both development and production, especially with security in mind. In this article I'll show you some of the things I've learnt and implemented to help create a flexible setup that works great for local development as well as production.
+
+One of the typical bad examples you'll come across is:
+
+```docker
+FROM node:latest
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+While this works as a basic starter there are many things that can be improved - let's dive into them one by one.
+
+## Node images and version pinning
+
+Looking at the first line you'll notice the Node.js version uses the `:latest` tag - there are a few problems with this. Firstly using the latest tag means everytime the image is built the most recent version of Node.js will be used. It seems obvious but you don't want to be running random Node.js versions in production! You want to use the latest Long Term Support (LTS) version since in an enterprise environment we want to use the most stable version and minimise the chance of bugs.
+
+Secondly you should be quite specific about which version of Node.js to use. You may come across Dockerfile examples that use `FROM node:12` or `FROM node:14`. While this is better than the latest tag it still means there is a chance that a new minor update may introduce a performance issue or some sort of regression. Even though this is probably unlikely, it pays to be safe therefore I recommend pinning the version to the latest minor version (`FROM node:14.17`). This way we can be sure to get critical bug fixes each time we build and deploy with the freedom to upgrade to a minor/major version with a more rigorous test strategy.
+
+Lastly Node.js images for Docker come in various flavours. If you visit [Docker Hub](https://hub.docker.com/_/node) you can see the full list of images which represent the underlying OS Node.js is built upon (Debian or Alpine). Trying to navigate the list of versions can be quite daunting at first but the three most common variants are:
+
+* Full (`FROM node:14.17`)
+* Slim (`FROM node:14.17-slim`)
+* Alpine (`FROM node:14.17-alpine`)
+
+By default this full version of Node.js comes with a lot of extra utilities which aren't really necessary and add extra bloat to your image. We can see how large the full, Slim and Alpine images are:
+
+```
+node  14.17         942MB
+node  14.17-slim    167MB
+node  14.17-alpine  117MB
+```
+
+The full Node.js 14.17 image comes in at over a whopping 942MB! In contrast the slim image is 167MB and Alpine 117MB. So which should you choose? My preference is to go for the Alpine version because:
+
+1. It is the smallest.
+1. It consumes less memory.
+1. Since it depends on less libraries you can argue this improves overall security.
+
+So with that change our first line now looks like:
+
+```docker{1}
+FROM node:14.17-alpine3.13
+
+WORKDIR /app
+
+COPY . .
+
+RUN npm install
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+## Efficient images
+
+Looking at our current Dockerfile we can see that the source code is copied in and then npm install is run. This is inefficient due to the way Docker layering and cache busting works. When you copy in the source code and then run npm install this means that whenever a source file is changed the entire node\_modules will have to be reinstalled too, even if no packages have changed. Since your dependencies change much less frequently than source code a better practice is to install them first and then copy in the source files.
+
+```docker{5,7,9}
+FROM node:14.17-alpine3.13
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci && npm cache clean --force
+
+COPY . .
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+We first copy the package.json and package-lock.json, install our dependencies and _then_ copy in our source code. This makes it much faster to build your image when only the source code has changed. And if you're using Continuous Integration (CI) with something like [CircleCI](https://circleci.com/) then by having smarter Dockerfiles you can more easily take advantage of [Docker layer caching](https://circleci.com/docs/2.0/docker-layer-caching/), again meaning a faster feedback cycle for staging and production environments.
+
+You'll also notice we use the [npm ci](https://blog.npmjs.org/post/171556855892/introducing-npm-ci-for-faster-more-reliable) command which is faster than npm install and produces more reliable builds. It will delete your node\_modules directory, install the dependencies exactly as they are specified in package-lock.json and compared to npm install won't modify package-lock.json. Npm install is still needed when adding or updating dependencies since we do want to update package-lock.json.
+
+_If you're using Yarn rather than NPM you can just continue with `yarn install` as normal._
+
+Additionally we clear the cache since we don't need to use it within the container and removing it saves us a little bit of space. There is one more thing we can do that will further improve performance. When we build this image using:
+
+```docker build -t app:1.00 .```
+
+You'll notice a large payload is sent to the Docker engine, e.g.
+
+```Sending build context to Docker daemon 44.56MB```
+
+This isn't great as we're copying our local node\_modules into our container. We've already installed them in the container so copying them is redundant, but worse is that if you're working on a Mac or Windows you may have some packages that had to be compiled specifically for your host OS (e.g. Node Sass). This means we're copying incompatible libraries into our (Linux) container which can cause problems. In order to avoid copying in node\_modules we can create a `.dockerignore` file. This works much in the same way as `.gitignore`, allowing us to tell Docker to ignore copying files/directories into the container. Let's create this file with the following:
+
+```
+node_modules
+.git
+```
+
+Now if we re-run the build command:
+
+```docker build -t app:1.00 .```
+
+And look at the build context sent to the Docker engine it is much smaller.
+
+```Sending build context to Docker daemon 256kB```
+
+
+## Docker Compose for development
+
+When we run our Dockerfiles in development it's a good practice to pair them with a Docker Compose file. Docker Compose is a tool designed to make both developer and complex multi-app container workflows easier. It's not really designed for production environments where typically you'll use another tool to manage this. For example you might be using [Terraform](https://www.terraform.io/) and Amazon Web Services (AWS) with [EKS](https://aws.amazon.com/eks/) or [ECS](https://aws.amazon.com/ecs/) (and optionally [Fargate](https://aws.amazon.com/fargate/)).
+
+When we run Docker locally it usually looks something like this to build and run your app:
+
+```
+$ docker build -t app:1.00 .
+$ docker run -p 3000:3000 -e NODE_ENV=development --rm
+```
+
+There's ports to open, environment variables to set, tags to remember etc which can be a pain to run manually each time (and it can get even more complicated!). Now you can somewhat abstract this into a Makefile but Docker Compose here really shines, allowing you to describe those actions in a more declarative way. Let's take a look:
+
+```yaml
+# docker-compose.yml
+services:
+  app:
+    build:
+      context: .
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+```
+
+Here we declare how to build our app using a yaml configuration file. I won't go into detail all the different parameters available but you can start with the [official documentation](https://docs.docker.com/compose/compose-file/#service-configuration-reference).
+
+_For those of you eagle-eyed readers we no longer need to specify a Docker Compose version since both v2 and v3 properties are now supported and is the recommended way to go moving forward._
+
+To build your container you can simply run:
+
+```
+$ docker compose build
+```
+
+And to run and stop it:
+
+```
+// run the container
+$ docker compose up
+
+// stop the container
+$ docker compose down
+```
+
+Much easier to manage in my opinion.
+
+## Faster local development with bind mounts
+
+When developing locally we want a fast feedback cycle. With our current Dockerfile any time we make a change to our source code we need to rebuild and run the image. Compared to the traditional way of just running `npm start` or similar this experience isn't great. Currently we copy our source code into the container which is necessary for production but for development we don't actually want to do this. We still want to install our node\_modules into the container since we can't guarantee everyone on the team will be using the same host and container OS. For the source code we can bind mount our local code into the container, let's take a look at what that looks like:
+
+```docker
+# Dockerfile
+FROM node:14.17-alpine3.13
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci && npm cache clean --force
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+```yaml{10-12}
+# docker-compose.yml
+services:
+  web:
+    build:
+      context: .
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app:delegated
+```
+
+We've removed the command to copy in our source files `COPY . .` since we're going to inject, aka bind mount our host files into the container. We've also added a volumes flag to the Docker Compose configuration that does the actual bind mount.
+
+You'll also notice we suffix the bind mount with `:delegated`. This is a neat trick if you're using a Mac for development. Docker has to sync your files across your host OS to the container which can hurt performance in certain cases. The delegated flag tells Docker that if there are any write operations going on then it's okay for the file IO to get ahead of the host, improving performance.
+
+## Flexible workflows both within Docker and natively
+
+Up until now we've been concentrating on working within Docker, however there may be times when you want to work natively without Docker. Perhaps you're having trouble connecting to an external service over ssh and want to remove Docker's networking stack from the equation, or there's that one engineer who ignores the README and runs `npm ci` even if your team decides to use Docker exclusively!
+
+As we've seen your node\_modules on your host and within the container could be incompatible - we don't want to mix the two. Currently we bind mount our code into the container but if you run `npm ci` and then this will also mount our local node\_modules causing issues. So how do we allow the use of both `npm ci` locally as well as `docker compose build` so they don't conflict with each other? Well the answer lies in a little trick to install the node\_modules up one directory within the container. We can take advantage of Node's [module resolution algorithm](https://nodejs.org/docs/latest-v14.x/api/modules.html#modules_loading_from_node_modules_folders) which first looks within the current directory for node\_modules, going up a parent directory recursively until one is found.
+
+```docker{4,10}
+# Dockerfile
+FROM node:14.17-alpine3.13
+
+WORKDIR /node
+
+COPY package*.json ./
+
+RUN npm ci && npm cache clean --force
+
+WORKDIR /node/app
+
+EXPOSE 3000
+CMD ["npm", "start"]
+```
+
+```yaml{11-12}
+# docker-compose.yml
+services:
+  web:
+    build:
+      context: .
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/node/app:delegated
+      - /node/app/node_modules
+```
+
+In our Dockerfile we create a new directory `node` where the node\_modules will be installed into. We then change the working directory to `/node/app` which will be our entrypoint into the container. In our Docker Compose file we've also made some changes to reflect the new structure - we now bind mount our code into the `/node/app` directory (since it is now our entrypoint). Additionally we create an anonymous volume to hide our local node\_modules directory within the container. This is important as without this Node.js will still use the node\_modules directory in `/node/app`. This line ensures it will go up to the parent directory.
+
+## Multi-stage builds
+
+With our current Dockerfile we'd like to use the same file for managing both development and production images and maybe even running tests in a CI environment. However they have different setups - in development we're bind mounting our code and in production we need to copy in our source files. Also our dependencies are different in development compared to production, for example you might be running something like [nodemon](https://github.com/remy/nodemon) in development to reload the server. Previously we had to manage this using multiple Docker files but multi-stage builds have solved this quite nicely. Multi-stage builds allow us to use multiple `FROM` statements as well as copy files between stages. So let's dive in:
+
+```docker
+# Dockerfile
+
+# Base stage
+# ---------------------------------------
+FROM node:14.17-alpine3.13 AS base
+
+# Development stage
+# ---------------------------------------
+FROM base AS development
+
+WORKDIR /node
+COPY package*.json ./
+RUN \
+  NODE_ENV=development && \
+  npm ci && \
+  npm cache clean --force
+
+WORKDIR /node/app
+EXPOSE 3000
+CMD [ "npm", "start" ]
+
+# Source stage
+# ---------------------------------------
+FROM base AS source
+
+WORKDIR /node
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
+COPY . .
+
+# Test stage
+# ---------------------------------------
+FROM source AS test
+
+COPY --from=development /node/node_modules /node/node_modules
+RUN npm run test && npm run lint
+
+# Production stage
+# ---------------------------------------
+FROM source AS production
+
+EXPOSE 3000
+CMD [ "npm", "start" ]
+```
+
+```yaml{6}
+# docker-compose.yml
+services:
+  app:
+    build:
+      context: .
+      target: development
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/node/app:delegated
+      - /node/app/node_modules
+```
+
+Take a moment - there's a lot going on here! You can see we've split each stage into sections; one for development, test and production. In the `Base` stage we simply declare our Node.js version and have the other stages inherit this. This means when it comes to upgrading the version of Node.js we just need to do it in one place.
+
+The development stage contains our previous Dockerfile commands. By wrapping this in an isolated stage we can tell Docker to only build this specific image, e.g. by running:
+
+```
+$ docker build --target development -t app:1.00 .
+```
+
+The great thing here is it will skip all the stages after development. If we take a look at the Docker Compose file we've also added a new target flag to `development`. This allows us to automatically default to the development stage when running `docker compose build`.
+
+The next stage we declare is the `source` stage. This is a useful base for our production images since it saves us from repeating the installation of node\_modules in the `test` and `production` stages.
+
+Our test stage inherits from the `source` stage and copies in the node\_modules from the development stage. This is handy since most likely you've configured tools like ESLint and Jest to reside within the `devDependencies` section of your package.json. By default when npm ci is run with the NODE_ENV set to production the dev dependencies are not installed. In the development stage we force the Node.js environment to development since we always want to install dev dependencies, and by copying the node\_modules we save having to reinstall everything.
+
+## Build/Environment variables
+
+Typically your application may include a build process and it is useful to set the Node.js environment at build time since libraries will use this to determine whether or not to create production optimised builds (e.g. if you use [Webpack](https://webpack.js.org/) or other bundlers in the front-end). We also use this same variable to set the runtime Node.js environment since you'll want your running Node.js process to be configured correctly. In Docker we have build arguments and runtime arguments to support both these cases:
+
+```docker{5-7,23-24}
+# Development stage
+# ---------------------------------------
+FROM base AS development
+
+ENV SERVER_PORT=3000
+ENV PATH /node/node_modules/.bin:$PATH
+EXPOSE $SERVER_PORT 9229
+
+WORKDIR /node
+COPY package*.json ./
+RUN \
+  NODE_ENV=development && \
+  npm ci && \
+  npm cache clean --force
+
+WORKDIR /node/app
+CMD [ "npm", "start" ]
+
+# Source stage
+# ---------------------------------------
+FROM base AS source
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /node
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
+COPY . .
+```
+
+```yaml{8}
+# docker-compose.yml
+services:
+  app:
+    build:
+      context: .
+      target: development
+      args:
+        - NODE_ENV=development
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+      - "9229:9229"
+    volumes:
+      - .:/node/app:delegated
+      - /node/app/node_modules
+```
+
+Looking at the source stage in our Dockerfile we first create a local variable called `NODE_ENV`. By prefixing this with `ARG` we tell Docker to treat this as a build argument. If someone doesn't pass a value you can also set a sensible default (set to production). Using Docker directly you can run the following:
+
+```
+$ docker build --build-arg NODE_ENV=production --target=production -t app:1.00 .
+```
+
+If you look at `ENV NODE_ENV=${NODE_ENV}` you'll notice we're using the same build argument value for the Node.js runtime environment which saves us having to specify each one individually (it is unlikely you'll have a different value for build and runtime). Also in the Docker Compose file we set the build argument too just to keep things consistent (under the `args` section).
+
+As part of the development stage we set an `ENV PATH` which is useful for being able to run commands in Dockerfiles more easily, for example if you use Nodemon you can simply write:
+
+```docker
+CMD [ "nodemon" ]
+```
+
+Lastly we also modify the `EXPOSE` command - we declare ports 3000 and 9229 (the default [debugging port](https://nodejs.org/en/docs/guides/debugging-getting-started/)) will be used.
+
+*One thing to note is EXPOSE doesn't publish any ports; it only exists as a type of documentation for anyone reading the Dockerfile. The ports section in the Docker Compose file does the actual publishing.*
+
+If we follow this for all the other stages we now have:
+
+```docker
+# Base stage
+# ---------------------------------------
+FROM node:14.17-alpine3.13 AS base
+
+# Development stage
+# ---------------------------------------
+FROM base AS development
+
+ENV SERVER_PORT=3000
+ENV PATH /node/node_modules/.bin:$PATH
+EXPOSE $SERVER_PORT 9229
+
+WORKDIR /node
+COPY package*.json ./
+RUN \
+  NODE_ENV=development && \
+  npm ci && \
+  npm cache clean --force
+
+WORKDIR /node/app
+CMD [ "npm", "start" ]
+
+# Source stage
+# ---------------------------------------
+FROM base AS source
+
+WORKDIR /node
+COPY package*.json ./
+RUN npm ci && npm cache clean --force
+COPY . .
+
+# Test stage
+# ---------------------------------------
+FROM source AS test
+
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+
+COPY --from=development /node/node_modules /node/node_modules
+
+RUN npm run test && npm run lint
+
+# Production stage
+# ---------------------------------------
+FROM source AS production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+ENV SERVER_PORT=3000
+
+EXPOSE $SERVER_PORT
+CMD [ "npm", "start" ]
+```
+
+Be aware we have to duplicate the build arguments and environment variables for each stage - they are scoped per build-stage and therefore cannot be shared.
+
+Lastly in many cases you'll be using a `.env` file to control environment variables. Docker compose supports this out of the box natively, you can simply reference them with the following syntax:
+
+```bash
+// .env
+NODE_ENV=development
+SERVER_PORT=3000
+```
+
+```yaml
+# docker-compose.yml
+services:
+  app:
+    build:
+      context: .
+      target: ${NODE_ENV}
+      args:
+        - NODE_ENV=${NODE_ENV}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SERVER_PORT=${SERVER_PORT}
+    ports:
+      - "3000:${SERVER_PORT}"
+      - "9229:9229"
+    volumes:
+      - .:/node/app:delegated
+      - /node/app/node_modules
+```
+
+## Node.js process and proper shutdown
+
+Docker uses standard Linux signals to stop a container (i.e. SIGINIT/SIGTERM/SIGKILL). For example say you've deployed your app and it's running in the cloud. If your healthcheck command fails then that means the container is unhealthy and needs to be terminated. It will receive SIGTERM telling it to shutdown gracefully. In order to handle these properly you should never have your Dockerfile start your app with `CMD ["npm", "start"]`. NPM doesn't handle these signals at all and won't properly shut down your app. You need to use Node.js directly for this but with some extra configuration. Depending on your entrypoint to start Node.js we can change our Dockerfile to:
+
+```docker{4, 6}
+// bad
+CMD ["npm", "start"]
+// good
+CMD ["node", "./index.js"]
+// or
+CMD ["node", "./bin/www"]
+```
+
+We also need to track the HTTP connections to ensure they close properly when our app receives the shutdown signal which helps with zero downtime deployments. You can do this yourself with code but I recommend integrating the library [stoppable](https://github.com/hunterloftis/stoppable) which handles this nicely for you. For example if you're using [Express](https://expressjs.com/) you can setup your Node.js entrypoint to look something like this:
+
+```js
+// ./bin/www
+#!/usr/bin/env node
+
+require('dotenv-flow').config();
+
+const http = require('http');
+const stoppable = require('stoppable');
+const { promisify } = require('util');
+const app = require('../src/app');
+
+const SIGINT = 'SIGINT';
+const SIGTERM = 'SIGTERM';
+const SERVER_CLOSE_GRACE = 10000;
+const { SERVER_PORT } = process.env;
+
+const shutdownMessages = {
+  [SIGINT]: 'Received SIGINT, probably ctrl-c. Gracefully shutting down the server.',
+  [SIGTERM]: 'Received SIGTERM, probably docker stop. Gracefully shutting down the server.',
+};
+
+const server = stoppable(http.createServer(app), SERVER_CLOSE_GRACE);
+const serverClose = promisify(server.stop.bind(server));
+
+// Handle a shutdown event
+async function shutdown(signal) {
+  console.log(shutdownMessages[signal]);
+
+  try {
+    await serverClose();
+    console.log('Bye');
+    process.exit(0);
+  } catch (err) {
+    console.error(err);
+    process.exit(1);
+  }
+}
+
+server.listen(SERVER_PORT, () => {
+  console.log(`Server listening at http://localhost:${SERVER_PORT}`);
+});
+
+process.on(SIGINT, () => shutdown(SIGINT));
+process.on(SIGTERM, () => shutdown(SIGTERM));
+```
+
+In this example our entrypoint to starting our Node.js app is the file `bin/www`, similar to what you'd see in a typical Express application. We listen to both the `SIGINT` and `SIGTERM` signals and then instruct the server to shut down. The server is a basic http server which is wrapped with the Stoppable library. Stoppable will stop accepting new connections and close any existing connections when the stop method is invoked which is just what we're looking for.
+
+ We also [promisfy](https://nodejs.org/api/util.html#util_util_promisify_original) the server stop method so that we can use async/await rather than the older error-first callback style (much nicer in my opinion).
+
+## BuildKit
+
+Docker BuildKit is a new way to build your Docker images and is a replacement for Docker's "build engine" which brings a lot of improvements over the current build engine. You can view the full list of features in the [GitHub repo](https://github.com/moby/buildkit) but the one I want to focus on today is around the efficient creation of build stages.
+
+Without buildkit when you build the image with the target `production` it will build all the previous stages even if they aren't used which isn't great as it takes longer. You can test this by running the following build command:
+
+```docker build --target=production -t app:1.00 .```
+
+You can see the development and test stages are being built even though they're not needed for the production image. To enable BuildKit we can run our build command with the following:
+
+```DOCKER_BUILDKIT=1 docker build --target=production -t app:1.00 .```
+
+This time you'll see the build is much faster as it skips unused stages. In order to use this with Docker Compose we have to add an additional variable:
+
+```COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker compose build```
+
+Now to save having to type this out every single time you run a build you can add these to your shell as environment variables. For example if you're using bash you can edit your `bash_profile` and add:
+
+```
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+```
+
+However I wouldn't recommend this approach for larger teams. It can be quite cumbersome to ensure each engineer in the team adds this to their shell and remembers the commands to build the images. Additionally you'll probably also have a command that might push the final images to a CI environment and having a mental memory of these can get tricky. This is where Makefiles can shine, allowing you to abstract these away quite nicely. Let's take a look:
+
+```makefile
+SHELL=bash
+
+###################################################################################################
+## INITIALISATION
+###################################################################################################
+
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+###################################################################################################
+## DEV
+###################################################################################################
+.PHONY: build-dev build-dev-no-cache start start-detached stop shell
+
+build-dev: ##@dev Build the application for dev
+	docker compose build
+
+build-dev-no-cache: ##@dev Build the application for dev without using cache
+	docker compose build --no-cache
+
+start: ##@dev Start the development environment
+	docker compose up
+
+start-detached: ##@dev Start the development environment (detached)
+	docker compose up -d
+
+stop: ##@dev Stop the development environment
+	docker compose down
+
+shell: ##@dev Go into the running container (the app name should match what's in docker-compose.yml)
+	docker compose exec app /bin/sh
+
+###################################################################################################
+## HELP
+###################################################################################################
+
+.PHONY: default
+default: help
+
+GREEN  := $(shell tput -Txterm setaf 2)
+WHITE  := $(shell tput -Txterm setaf 7)
+YELLOW := $(shell tput -Txterm setaf 3)
+RESET  := $(shell tput -Txterm sgr0)
+
+HELP_FUN = \
+	%help; \
+	while(<>) { push @{$$help{$$2 // 'options'}}, [$$1, $$3] if /^([a-zA-Z\-]+)\s*:.*\#\#(?:@([a-zA-Z\-]+))?\s(.*)$$/ }; \
+	print "usage: make [target]\n\n"; \
+	for (sort keys %help) { \
+	print "${WHITE}$$_:${RESET}\n"; \
+	for (@{$$help{$$_}}) { \
+	$$sep = " " x (32 - length $$_->[0]); \
+	print "  ${YELLOW}$$_->[0]${RESET}$$sep${GREEN}$$_->[1]${RESET}\n"; \
+	}; \
+	print "\n"; }
+
+help: ##@other Show this help
+	@perl -e '$(HELP_FUN)' $(MAKEFILE_LIST)
+```
+
+In the first section we export our BuildKit variables so that any docker commands automatically enable the new build engine. In the dev section you'll notice some handy targets that might be useful, such as `build-dev-no-cache` which makes building the image without using any cache. To use any of these commands all you need to do is type `make [target]`, for example `make build-dev` which builds our image using the development stage. The help section is a little bit of magic so if you type `make` with no target it will nicely list all possible commands, give it a go!
+
+## Using a non root user
+
+By default Docker containers run as root. While this makes things easier (no permission issues etc) this is bad because it means if your application manages to get hacked a malicious attacker would have root level privileges to do some nasty things and potentially break out of the container. By sticking to the [principle of least privilege](https://en.wikipedia.org/wiki/Principle_of_least_privilege) we can limit the scope of attack. If you build your image and run the container based on our current Dockerfile we can see this:
+
+```
+$ docker compose up --build
+$ docker compose exec app /bin/sh
+
+/app # $ ls -l
+total 572
+-rw-r--r--    1 root  root     143 Jan 24 15:43 Dockerfile
+drwxr-xr-x    2 root  root    4096 Jan  3 19:13 bin
+drwxr-xr-x  508 root  root   20480 Jan 24 16:58 node_modules
+-rw-r--r--    1 root  root  292980 Jan 24 16:58 package-lock.json
+-rw-r--r--    1 root  root     191 Jan 24 15:43 package.json
+drwxr-xr-x    2 root  root    4096 Jan  3 19:13 src
+
+$ whoami
+root
+```
+
+As you can see the user, directories and files are owned by root - let's go about changing this. Firstly to ensure we're running the container as the user node we can add the following to our Dockerfile:
+
+```docker{9}
+# Dockerfile
+
+# Base stage
+# ---------------------------------------
+FROM node:14.17-alpine3.13 AS base
+
+# This get shared across later stages
+WORKDIR /node
+USER node
+
+# Development stage
+# ---------------------------------------
+```
+
+By placing it near the top in the base stage we can be sure all further actions can use this user. If you need to change the user to root for whatever reason (such as installing APK packages) ensure you change the user back to Node after you've finished, e.g.
+
+```docker
+USER root
+RUN apk add --no-cache curl
+
+USER node
+# continue...
+```
+
+Additionally when we run the `COPY` command Docker runs this as root, meaning our source files and directories are still owned by root (why it can't read the `USER` is another question but probably this would be a breaking change). To ensure they are owned by the node user we can pass the `chown` command as a flag to get our desired result:
+
+```docker
+COPY --chown=node:node package*.json ./
+COPY --chown=node:node . .
+```
+
+But we're still not finished! If you build and run the container you'll see the files are owned by node but the `node` directory we create is still owned by root. This is because the `WORKDIR /app` command like `COPY` runs as root. Unfortunately there is no equivalent `chown` attribute therefore we need to run this explicitly:
+
+```docker{2}
+WORKDIR /node
+RUN chown node:node /node
+USER node
+```
+
+Putting it all together our Dockerfile now looks like:
+
+```docker
+# Base stage
+# ---------------------------------------
+FROM node:14.17-alpine3.13 AS base
+
+# This get shared across later stages
+WORKDIR /node
+RUN chown node:node /node
+USER node
+
+# Development stage
+# ---------------------------------------
+FROM base AS development
+
+ENV SERVER_PORT=3000
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /app/node_modules/.bin:$PATH
+EXPOSE $SERVER_PORT 9229
+
+COPY --chown=node:node package*.json ./
+
+RUN \
+  NODE_ENV=development && \
+  npm ci && \
+  npm cache clean --force
+
+WORKDIR /node/app
+
+CMD [ "node", "./bin/www" ]
+
+# Source stage
+# ---------------------------------------
+FROM base AS source
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /node
+COPY --chown=node:node package*.json ./
+
+RUN npm ci && npm cache clean --force
+
+WORKDIR /node/app
+RUN chown node:node /node/app
+COPY --chown=node:node . .
+
+# Test stage
+# ---------------------------------------
+FROM source AS test
+
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+
+COPY --chown=node:node --from=development /node/node_modules /node/node_modules
+
+RUN npm run test && npm run lint
+
+# Production stage
+# ---------------------------------------
+FROM source AS production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+ENV SERVER_PORT=3000
+
+EXPOSE $SERVER_PORT
+
+CMD [ "node", "./bin/www" ]
+```
+
+## Managing secrets for private NPM packages
+
+When using NPM's private repository for managing custom libraries you need the `.npmrc` file to download your custom packages. This file contains an authentication token granting you access to your custom packages. It usually looks like this:
+
+```
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+```
+
+As it stands, if you try to build your Dockerfile using private packages this will fail since we're not including `.npmrc` before we run `npm ci`.
+
+```
+$ docker compose build
+
+#9 2.628 npm ERR! code E404
+#9 2.631 npm ERR! 404 Not Found - GET https://registry.npmjs.org/@private-scope/package/-/package-1.0.0.tgz
+#9 2.633 npm ERR! 404
+#9 2.655 npm ERR! 404  '@private-scope/package-name@1.0.0' is not in the npm registry.
+```
+
+Your first instinct might be to add this file when we copy in our package.json and package-lock.json:
+
+```docker
+COPY --chown=node:node package*.json .npmrc ./
+```
+
+Now while this works this isn't great from a security perspective. If you run this container and shell inside you'll see this file present:
+
+```
+$ docker compose up -d
+$ docker compose exec app /bin/sh
+
+/app # $ ls -l
+drwxr-xr-x 2 node node 4096 Jan 23 19:13 .npmrc
+```
+
+If a hacker manages to gain access to your Docker container then they can read this token and use it to download your packages or worse yet if you have publish writes associated with the token modify your package. Your next instinct might be to delete this file after running `npm ci` like this:
+
+```docker
+COPY --chown=node:node package*.json .npmrc ./
+
+RUN \
+  npm ci && \
+  npm cache clean --force && \
+  rm -rf .npmrc
+```
+
+However this still isn't secure since it will leak the token in the image commit history. If we run `docker history app` you can see the token value right there. So what's the solution? Well there is an experimental Docker Buildkit feature for managing secrets that's been out for a while now, however unfortunately Docker Compose still doesn't support this (there is an [outstanding PR](https://github.com/docker/compose/pull/7046) from Nov 2019).
+
+For now the best way is to create a separate isolated multi-stage just for handling this. By creating a build stage we can protect our .npmrc file without it leaking. Let's take a look:
+
+```shell
+#.npmrc
+
+# Ensure you don't replace this with your actual token!
+//registry.npmjs.org/:_authToken=${NPM_TOKEN}
+```
+
+```yaml{9}
+# docker-compose.yml
+services:
+  app:
+    build:
+      context: .
+      target: ${NODE_ENV}
+      args:
+        - NODE_ENV=${NODE_ENV}
+        - NPM_TOKEN=${NPM_TOKEN}
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - SERVER_PORT=${SERVER_PORT}
+    ports:
+      - "3000:${SERVER_PORT}"
+      - "9229:9229"
+    volumes:
+      - .:/node/app:delegated
+      - /node/app/node_modules
+```
+
+```docker{55}
+# Build stage
+# ---------------------------------------
+FROM node:14.17-alpine3.13 AS build
+
+ARG NPM_TOKEN
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /node
+RUN chown node:node /node
+USER node
+
+COPY --chown=node:node package.json yarn.lock ./
+
+RUN \
+  echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" > .npmrc && \
+  npm ci && \
+  npm cache clean --force && \
+  rm .npmrc
+
+# Base stage
+# ---------------------------------------
+FROM node:14.17-alpine3.13 AS base
+
+# This get shared across later stages
+WORKDIR /node
+RUN chown node:node /node
+USER node
+
+# Development stage
+# ---------------------------------------
+FROM base AS development
+
+ENV SERVER_PORT=3000
+ENV PATH /node/node_modules/.bin:$PATH
+EXPOSE $SERVER_PORT 9229
+
+COPY --chown=node:node package*.json ./
+
+RUN \
+  NODE_ENV=development && \
+  npm ci && \
+  npm cache clean --force
+
+WORKDIR /node/app
+
+CMD [ "node", "./bin/www" ]
+
+# Source stage
+# ---------------------------------------
+FROM base AS source
+
+WORKDIR /node/app
+RUN chown node:node /node/app
+COPY --chown=node:node --from=build /node/node_modules /node/node_modules
+COPY --chown=node:node . .
+
+# Test stage
+# ---------------------------------------
+FROM source AS test
+
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+
+COPY --chown=node:node --from=development /node/node_modules /node/node_modules
+
+RUN \
+  npm run test && \
+  npm run lint
+
+# Production stage
+# ---------------------------------------
+FROM source AS production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /node/node_modules/.bin:$PATH
+ENV SERVER_PORT=3000
+EXPOSE $SERVER_PORT
+
+CMD [ "node", "./bin/www" ]
+```
+
+In the `.npmrc` file we've got a reference to our token which will come from your environment. If you're using bash you can add this to either your `.bash_profile` or `.bashrc` by running the following:
+
+```bash
+echo 'export NPM_TOKEN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx' >> ~/.bashrc
+```
+
+In our Docker Compose file we've added a new build argument `NPM_TOKEN`. This will read our environment variable and pass this to the Dockerfile. In the Dockerfile itself you'll notice a new build stage - this stage only installs the production dependencies. In the source stage we no longer install the dependencies but instead copy them in from this build stage. Since none of our images inherit from the build stage and we copy the dependencies we can be sure our token will never be leaked.
+
+For managing other sorts of secrets (auth tokens, api keys etc) this method might not be the best approach. In that instance I would recommend loading the secrets at runtime (e.g. integrating with something like [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/)). Perhaps the source of another blog post in the future.
+
+## Wrapping up
+
+As you can see we've gone from a very basic Dockerfile to a fairly advanced flexible setup. With a single Dockerfile we can now build development, test and production images with security baked in. You can find a working example in my [GitHub repo](https://github.com/viralganatra/docker-nodejs-best-practices).
+
+If you have any ideas for improvement feel free to reach out!
