@@ -9,7 +9,7 @@ module.exports = {
       summary: 'Principal engineer at Third Bridge working on the web, sharing through experience.',
     },
     description: 'A technical blog by Viral Ganatra',
-    siteUrl: 'https://www.viralganatra.com',
+    siteUrl: 'https://viralganatra.com',
     social: {
       twitter: 'viralganatra16',
       github: 'https://github.com/viralganatra',
