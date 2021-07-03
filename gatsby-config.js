@@ -95,14 +95,14 @@ module.exports = {
       },
     },
     'gatsby-plugin-react-helmet',
-    {
-      resolve: 'gatsby-plugin-offline',
-      options: {
-        workboxConfig: {
-          globPatterns: ['**/icon-path*'],
-        },
-      },
-    },
+    // {
+    //   resolve: 'gatsby-plugin-offline',
+    //   options: {
+    //     workboxConfig: {
+    //       globPatterns: ['**/icon-path*'],
+    //     },
+    //   },
+    // },
     {
       resolve: `gatsby-plugin-google-gtag`,
       options: {
