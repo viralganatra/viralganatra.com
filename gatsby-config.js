@@ -95,16 +95,9 @@ module.exports = {
       },
     },
     'gatsby-plugin-react-helmet',
-    // {
-    //   resolve: 'gatsby-plugin-offline',
-    //   options: {
-    //     workboxConfig: {
-    //       globPatterns: ['**/icon-path*'],
-    //     },
-    //   },
-    // },
+    'gatsby-plugin-offline',
     {
-      resolve: `gatsby-plugin-google-gtag`,
+      resolve: 'gatsby-plugin-google-gtag',
       options: {
         trackingIds: [process.env.GA_API_TOKEN],
       },
