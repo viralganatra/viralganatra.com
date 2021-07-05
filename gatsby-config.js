@@ -82,6 +82,57 @@ module.exports = {
     'gatsby-plugin-sharp',
     'gatsby-transformer-sharp',
     {
+      resolve: 'gatsby-plugin-feed',
+      options: {
+        query: `
+          {
+            site {
+              siteMetadata {
+                title
+                description
+                siteUrl
+                site_url: siteUrl
+              }
+            }
+          }
+        `,
+        feeds: [
+          {
+            serialize: ({ query: { site, allMdx } }) =>
+              allMdx.nodes.map((node) => ({
+                title: node.frontmatter.title,
+                description: node.excerpt,
+                date: node.frontmatter.date,
+                url: `${site.siteMetadata.siteUrl}${node.fields.slug}`,
+                guid: `${site.siteMetadata.siteUrl}${node.fields.slug}`,
+                custom_elements: [{ 'content:encoded': node.html }],
+              })),
+            query: `
+              {
+                allMdx(
+                  sort: { order: DESC, fields: [frontmatter___date] },
+                ) {
+                  nodes {
+                    excerpt
+                    html
+                    fields {
+                      slug
+                    }
+                    frontmatter {
+                      title
+                      date
+                    }
+                  }
+                }
+              }
+            `,
+            output: '/rss.xml',
+            title: 'Pixels with purpose - a blog by Viral Ganatra',
+          },
+        ],
+      },
+    },
+    {
       resolve: 'gatsby-plugin-manifest',
       options: {
         name: 'Pixels with purpose - a blog by Viral Ganatra',
