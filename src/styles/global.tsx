@@ -1,3 +1,4 @@
+import React from 'react';
 import { Global, css } from '@emotion/react';
 import styled from '@emotion/styled';
 import emotionNormalize from 'emotion-normalize';
@@ -22,7 +23,7 @@ const globalStyles = (
         --color-bg-hs: 21 73%;
         --color-text: hsl(var(--color-text-hs) 20%);
         --color-text-light: hsl(var(--color-text-hs) 50%);
-        --color-text-invert: #fff;
+        --color-text-invert: rgb(255, 255, 255);
         --color-bg: hsl(var(--color-bg-hs) 65%);
         --color-bg-accent: #f5deb4;
         --color-content-bg: rgba(255, 255, 255, 0.9);

@@ -1,9 +1,31 @@
-import PropTypes from 'prop-types';
+import React from 'react';
 import { Helmet } from 'react-helmet';
 import { useStaticQuery, graphql } from 'gatsby';
 
-export default function SEO({ lang = 'en', meta = [], title, description }) {
-  const { site } = useStaticQuery(
+type SEOProps = {
+  lang?: string;
+  meta?: {
+    name: string;
+    content: string;
+  }[];
+  title: string;
+  description?: string;
+};
+
+type QueryProps = {
+  site: {
+    siteMetadata: {
+      title: string;
+      description: string;
+      social: {
+        twitter: string;
+      };
+    };
+  };
+};
+
+export default function SEO({ lang = 'en', meta = [], title, description }: SEOProps) {
+  const { site } = useStaticQuery<QueryProps>(
     graphql`
       query {
         site {
@@ -65,10 +87,3 @@ export default function SEO({ lang = 'en', meta = [], title, description }) {
     </Helmet>
   );
 }
-
-SEO.propTypes = {
-  lang: PropTypes.string,
-  meta: PropTypes.arrayOf(PropTypes.shape),
-  title: PropTypes.string.isRequired,
-  description: PropTypes.string,
-};

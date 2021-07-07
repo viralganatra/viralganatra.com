@@ -4,7 +4,9 @@ export const md = 'md';
 export const lg = 'lg';
 export const xl = 'xl';
 
-export const breakpoints = {
+type Breakpoint = typeof xs | typeof sm | typeof md | typeof lg | typeof xl;
+
+export const breakpoints: Record<Breakpoint, number> = {
   [xs]: 0,
   [sm]: 600,
   [md]: 960,
@@ -12,8 +14,8 @@ export const breakpoints = {
   [xl]: 1920,
 };
 
-export function mediaQuery(mq) {
+export function mediaQuery(mq: keyof typeof breakpoints): string | null {
   const [, size] = Object.entries(breakpoints).find(([name]) => mq === name) ?? [];
 
-  return size && `@media (min-width: ${size}px)`;
+  return size ? `@media (min-width: ${size}px)` : null;
 }
