@@ -1,7 +1,6 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
-import { graphql } from 'gatsby';
+import { graphql, PageProps } from 'gatsby';
 import App from '../components/app';
 import SEO from '../components/seo';
 import Header from '../components/header';
@@ -9,13 +8,31 @@ import PostExcerpt from '../components/post-excerpt';
 import { contentWrapper, Main } from '../styles/global';
 import { mediaQuery, sm, md } from '../styles/responsive';
 
+type TagsTemplateProps = PageProps & {
+  data: {
+    allMdx: {
+      totalCount: number;
+      nodes: {
+        id: string;
+        excerpt: string;
+        frontmatter: {
+          title: string;
+          date: string;
+          isoDate: string;
+        };
+        fields: {
+          slug: string;
+        };
+      }[];
+    };
+  };
+  pageContext: {
+    tag: string;
+  };
+};
+
 export const pageQuery = graphql`
   query TagsBySlug($tag: String!) {
-    site {
-      siteMetadata {
-        title
-      }
-    }
     allMdx(
       sort: { fields: [frontmatter___date], order: DESC }
       filter: { frontmatter: { tags: { in: [$tag] } } }
@@ -65,12 +82,11 @@ const Posts = styled.div`
   }
 `;
 
-export default function TagsBySlugPage({ data, pageContext }) {
-  const siteTitle = data.site.siteMetadata.title;
+export default function TagsTemplate({ data, pageContext }: TagsTemplateProps) {
   const { totalCount, nodes: posts } = data.allMdx;
 
   return (
-    <App title={siteTitle}>
+    <App>
       <SEO title="All Tags" />
 
       <Masthead>
@@ -97,31 +113,3 @@ export default function TagsBySlugPage({ data, pageContext }) {
     </App>
   );
 }
-
-TagsBySlugPage.propTypes = {
-  data: PropTypes.shape({
-    site: PropTypes.shape({
-      siteMetadata: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      }).isRequired,
-    }).isRequired,
-    allMdx: PropTypes.shape({
-      totalCount: PropTypes.number.isRequired,
-      nodes: PropTypes.arrayOf(
-        PropTypes.shape({
-          id: PropTypes.string.isRequired,
-          frontmatter: PropTypes.shape({
-            title: PropTypes.string.isRequired,
-            date: PropTypes.string.isRequired,
-          }).isRequired,
-          fields: PropTypes.shape({
-            slug: PropTypes.string.isRequired,
-          }).isRequired,
-        }).isRequired,
-      ).isRequired,
-    }).isRequired,
-  }).isRequired,
-  pageContext: PropTypes.shape({
-    tag: PropTypes.string.isRequired,
-  }).isRequired,
-};

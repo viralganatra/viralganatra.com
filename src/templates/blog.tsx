@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { Link, graphql } from 'gatsby';
+import React, { useEffect, useState } from 'react';
+import { Link, graphql, PageProps } from 'gatsby';
 import styled from '@emotion/styled';
 import { MDXRenderer } from 'gatsby-plugin-mdx';
 import App from '../components/app';
@@ -11,13 +10,50 @@ import Bio from '../components/bio';
 import { mediaQuery, md, lg } from '../styles/responsive';
 import { Main, contentWrapper } from '../styles/global';
 
+type tableOfContentsItems = Array<{
+  url: string;
+  title: string;
+}>;
+
+type BlogPostTemplateQuery = PageProps & {
+  data: {
+    mdx: {
+      id: number;
+      excerpt: string;
+      body: string;
+      timeToRead: number;
+      frontmatter: {
+        title: string;
+        date: string;
+        isoDate: string;
+        description?: string;
+        tags: Array<string>;
+      };
+      tableOfContents: {
+        items: tableOfContentsItems;
+      };
+    };
+    previous?: {
+      fields: {
+        slug: string;
+      };
+      frontmatter: {
+        title: string;
+      };
+    };
+    next?: {
+      fields: {
+        slug: string;
+      };
+      frontmatter: {
+        title: string;
+      };
+    };
+  };
+};
+
 export const pageQuery = graphql`
   query BlogPostBySlug($id: String!, $previousPostId: String, $nextPostId: String) {
-    site {
-      siteMetadata {
-        title
-      }
-    }
     mdx(id: { eq: $id }) {
       id
       excerpt(pruneLength: 160)
@@ -163,11 +199,11 @@ const StyledBio = styled.footer`
   margin: var(--spacing-md) 0;
 `;
 
-const getHeadingIds = (items) => items?.map((i) => i.url) ?? [];
+const getHeadingIds = (items: tableOfContentsItems) => items?.map((i) => i.url) ?? [];
 
-export default function BlogPostTemplate({ data, location }) {
-  const [activeId, setActiveId] = useState();
-  const { mdx: post, previous, next, site } = data;
+export default function BlogPostTemplate({ data }: BlogPostTemplateQuery) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const { mdx: post, previous, next } = data;
 
   useEffect(() => {
     const headingIds = getHeadingIds(post.tableOfContents.items);
@@ -200,7 +236,7 @@ export default function BlogPostTemplate({ data, location }) {
   }, [post.tableOfContents.items]);
 
   return (
-    <App location={location} title={site.siteMetadata.title}>
+    <App>
       <SEO
         title={post.frontmatter.title}
         description={post.frontmatter.description || post.excerpt}
@@ -228,9 +264,9 @@ export default function BlogPostTemplate({ data, location }) {
                 <TableOfContents>
                   <TableOfContentsHeading>Table of contents</TableOfContentsHeading>
                   <QuickLinks>
-                    {post.tableOfContents.items.map(({ title, url }) => (
+                    {post.tableOfContents.items.map(({ url, title }) => (
                       <li key={url}>
-                        <a href={url} className={activeId === url.slice(1) ? 'active' : null}>
+                        <a href={url} className={activeId === url.slice(1) ? 'active' : undefined}>
                           {title}
                         </a>
                       </li>
@@ -271,34 +307,3 @@ export default function BlogPostTemplate({ data, location }) {
     </App>
   );
 }
-
-BlogPostTemplate.propTypes = {
-  data: PropTypes.shape({
-    site: PropTypes.shape({
-      siteMetadata: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      }).isRequired,
-    }).isRequired,
-    mdx: PropTypes.shape({
-      frontmatter: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-        description: PropTypes.string,
-        isoDate: PropTypes.string.isRequired,
-        date: PropTypes.string.isRequired,
-      }).isRequired,
-      excerpt: PropTypes.string.isRequired,
-      body: PropTypes.string.isRequired,
-      tableOfContents: PropTypes.shape({
-        items: PropTypes.arrayOf(
-          PropTypes.shape({
-            url: PropTypes.string.isRequired,
-            title: PropTypes.string.isRequired,
-          }).isRequired,
-        ).isRequired,
-      }).isRequired,
-    }).isRequired,
-    previous: PropTypes.shape(),
-    next: PropTypes.shape(),
-  }).isRequired,
-  location: PropTypes.shape().isRequired,
-};

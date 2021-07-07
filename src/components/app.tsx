@@ -1,7 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import globalStyles from '../styles/global';
+
+type AppProps = {
+  children: React.ReactNode[];
+};
 
 const Wrapper = styled.div`
   display: flex;
@@ -9,7 +12,7 @@ const Wrapper = styled.div`
   min-height: 100vh;
 `;
 
-export default function App({ children }) {
+export default function App({ children }: AppProps) {
   return (
     <Wrapper>
       {globalStyles}
@@ -17,7 +20,3 @@ export default function App({ children }) {
     </Wrapper>
   );
 }
-
-App.propTypes = {
-  children: PropTypes.arrayOf(PropTypes.node).isRequired,
-};

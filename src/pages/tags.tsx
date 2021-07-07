@@ -1,18 +1,24 @@
-import PropTypes from 'prop-types';
-import { graphql, Link } from 'gatsby';
+import React from 'react';
+import { graphql, Link, PageProps } from 'gatsby';
 import styled from '@emotion/styled';
 import App from '../components/app';
 import SEO from '../components/seo';
 import Header from '../components/header';
 import { contentWrapper, Main } from '../styles/global';
 
+type TagsPageProps = PageProps & {
+  data: {
+    allMdx: {
+      group: {
+        tag: string;
+        count: number;
+      }[];
+    };
+  };
+};
+
 export const pageQuery = graphql`
   query {
-    site {
-      siteMetadata {
-        title
-      }
-    }
     allMdx {
       group(field: frontmatter___tags) {
         tag: fieldValue
@@ -54,12 +60,11 @@ const TagCount = styled.span`
   color: var(--color-link);
 `;
 
-export default function TagsPage({ data }) {
-  const siteTitle = data.site.siteMetadata.title;
+export default function TagsPage({ data }: TagsPageProps) {
   const tagsByCount = data.allMdx.group.sort((a, b) => b.count - a.count);
 
   return (
-    <App title={siteTitle}>
+    <App>
       <SEO title="All Tags" />
 
       <Masthead>
@@ -89,21 +94,3 @@ export default function TagsPage({ data }) {
     </App>
   );
 }
-
-TagsPage.propTypes = {
-  data: PropTypes.shape({
-    site: PropTypes.shape({
-      siteMetadata: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      }).isRequired,
-    }).isRequired,
-    allMdx: PropTypes.shape({
-      group: PropTypes.arrayOf(
-        PropTypes.shape({
-          tag: PropTypes.string.isRequired,
-          count: PropTypes.number.isRequired,
-        }),
-      ),
-    }).isRequired,
-  }).isRequired,
-};

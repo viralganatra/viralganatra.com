@@ -1,8 +1,23 @@
 import React from 'react';
 import { useStaticQuery, graphql } from 'gatsby';
 
+type QueryProps = {
+  site: {
+    siteMetadata: {
+      tagline: string;
+      author: {
+        name: string;
+        summary: string;
+      };
+      social: {
+        github: string;
+      };
+    };
+  };
+};
+
 export default function Bio() {
-  const data = useStaticQuery(graphql`
+  const data = useStaticQuery<QueryProps>(graphql`
     query BioQuery {
       site {
         siteMetadata {

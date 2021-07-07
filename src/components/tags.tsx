@@ -1,7 +1,12 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { Link } from 'gatsby';
+
+type TagsProps = {
+  tags?: string[];
+  canNavigateToAllTags?: boolean;
+  className?: string;
+};
 
 const TagList = styled.ul`
   display: flex;
@@ -26,7 +31,7 @@ const Tag = styled(Link)`
   }
 `;
 
-export default function Tags({ tags = [], canNavigateToAllTags = false, className }) {
+export default function Tags({ tags = [], canNavigateToAllTags = false, className }: TagsProps) {
   if (!tags.length) {
     return null;
   }
@@ -46,9 +51,3 @@ export default function Tags({ tags = [], canNavigateToAllTags = false, classNam
     </TagList>
   );
 }
-
-Tags.propTypes = {
-  tags: PropTypes.arrayOf(PropTypes.string),
-  className: PropTypes.string,
-  canNavigateToAllTags: PropTypes.bool,
-};

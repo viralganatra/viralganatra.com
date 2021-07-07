@@ -1,12 +1,19 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import styled from '@emotion/styled';
 import { Link } from 'gatsby';
 import { px2rem } from '../styles/utils';
 import { mediaQuery, lg } from '../styles/responsive';
 import { HEADER_SIZE_LARGE, HEADER_SIZE_SMALL } from '../constants/header';
 
-const Logo = styled.div`
+type SizeProps = {
+  size?: typeof HEADER_SIZE_LARGE | typeof HEADER_SIZE_SMALL;
+};
+
+type HeaderProps = SizeProps & {
+  text?: string;
+};
+
+const Logo = styled.div<SizeProps>`
   color: var(--color-text-invert);
   display: inline-flex;
   font-size: calc(1rem + 1vmin + 1rem + 1vmax);
@@ -69,7 +76,7 @@ const LogoLink = styled(Link)`
   }
 `;
 
-const Strapline = styled.p`
+const Strapline = styled.p<SizeProps>`
   color: var(--color-text);
   font-size: calc(0.4rem + 1vmin + 0.4rem + 1vmax);
   line-height: 1;
@@ -82,7 +89,7 @@ const Strapline = styled.p`
   }
 `;
 
-export default function Header({ size = HEADER_SIZE_SMALL, text = 'Viral Ganatra' }) {
+export default function Header({ size = HEADER_SIZE_SMALL, text = 'Viral Ganatra' }: HeaderProps) {
   return (
     <>
       <Logo data-heading={text} size={size}>
@@ -92,8 +99,3 @@ export default function Header({ size = HEADER_SIZE_SMALL, text = 'Viral Ganatra
     </>
   );
 }
-
-Header.propTypes = {
-  size: PropTypes.oneOf([HEADER_SIZE_LARGE, HEADER_SIZE_SMALL]),
-  text: PropTypes.string,
-};

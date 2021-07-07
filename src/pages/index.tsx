@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
-import { graphql } from 'gatsby';
+import React from 'react';
+import { graphql, PageProps } from 'gatsby';
 import styled from '@emotion/styled';
 import App from '../components/app';
 import SEO from '../components/seo';
@@ -10,13 +10,30 @@ import { HEADER_SIZE_LARGE } from '../constants/header';
 import { contentWrapper, Main } from '../styles/global';
 import { mediaQuery, sm, md, lg } from '../styles/responsive';
 
+type HomePageProps = PageProps & {
+  data: {
+    allMdx: {
+      group: {
+        tag: string;
+        count: number;
+      }[];
+      nodes: {
+        excerpt: string;
+        fields: {
+          slug: string;
+        };
+        frontmatter: {
+          date: string;
+          isoDate: string;
+          title: string;
+        };
+      }[];
+    };
+  };
+};
+
 export const pageQuery = graphql`
   query {
-    site {
-      siteMetadata {
-        title
-      }
-    }
     allMdx(sort: { fields: [frontmatter___date], order: DESC }) {
       group(field: frontmatter___tags) {
         tag: fieldValue
@@ -133,14 +150,13 @@ const Posts = styled.div`
   }
 `;
 
-export default function HomePage({ data, location }) {
-  const siteTitle = data.site.siteMetadata.title;
+export default function HomePage({ data }: HomePageProps) {
   const { nodes, group: tags } = data.allMdx;
   const [firstPost, ...otherPosts] = nodes;
   const tagsByCount = tags.sort((a, b) => b.count - a.count).map(({ tag }) => tag);
 
   return (
-    <App location={location} title={siteTitle}>
+    <App>
       <SEO title="Passionate web developer who loves JavaScript!" />
 
       <Masthead>
@@ -178,35 +194,3 @@ export default function HomePage({ data, location }) {
     </App>
   );
 }
-
-HomePage.propTypes = {
-  data: PropTypes.shape({
-    site: PropTypes.shape({
-      siteMetadata: PropTypes.shape({
-        title: PropTypes.string.isRequired,
-      }).isRequired,
-    }).isRequired,
-    allMdx: PropTypes.shape({
-      group: PropTypes.arrayOf(
-        PropTypes.shape({
-          tag: PropTypes.string.isRequired,
-          count: PropTypes.number.isRequired,
-        }),
-      ),
-      nodes: PropTypes.arrayOf(
-        PropTypes.shape({
-          frontmatter: PropTypes.shape({
-            title: PropTypes.string.isRequired,
-            date: PropTypes.string.isRequired,
-            isoDate: PropTypes.isRequired,
-          }),
-          fields: PropTypes.shape({
-            slug: PropTypes.string.isRequired,
-          }),
-          excerpt: PropTypes.string.isRequired,
-        }).isRequired,
-      ),
-    }),
-  }).isRequired,
-  location: PropTypes.shape().isRequired,
-};

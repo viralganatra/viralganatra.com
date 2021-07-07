@@ -1,7 +1,18 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Link } from 'gatsby';
 import styled from '@emotion/styled';
+
+type PostExcerptProps = {
+  fields: {
+    slug: string;
+  };
+  frontmatter: {
+    title: string;
+    isoDate: string;
+    date: string;
+  };
+  excerpt: string;
+};
 
 const Title = styled.h3`
   margin-top: 0;
@@ -24,7 +35,7 @@ const Excerpt = styled.p`
   -webkit-line-clamp: 3;
 `;
 
-export default function PostExcerpt({ fields, frontmatter, excerpt }) {
+export default function PostExcerpt({ fields, frontmatter, excerpt }: PostExcerptProps) {
   return (
     <article>
       <header>
@@ -37,15 +48,3 @@ export default function PostExcerpt({ fields, frontmatter, excerpt }) {
     </article>
   );
 }
-
-PostExcerpt.propTypes = {
-  frontmatter: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
-    isoDate: PropTypes.string.isRequired,
-  }).isRequired,
-  fields: PropTypes.shape({
-    slug: PropTypes.string.isRequired,
-  }).isRequired,
-  excerpt: PropTypes.string.isRequired,
-};
