@@ -12,7 +12,7 @@ module.exports = {
     siteUrl: 'https://viralganatra.com',
     social: {
       twitter: 'viralganatra16',
-      github: 'https://github.com/viralganatra',
+      github: 'viralganatra',
     },
   },
   plugins: [
@@ -61,6 +61,9 @@ module.exports = {
             resolve: require.resolve('./src/plugins/gatsby-remark-autolink-header'),
           },
           {
+            resolve: require.resolve('./src/plugins/gatsby-remark-prismjs-title'),
+          },
+          {
             resolve: 'gatsby-remark-prismjs',
             options: {
               inlineCodeMarker: '›',
@@ -81,6 +84,7 @@ module.exports = {
     'gatsby-plugin-image',
     'gatsby-plugin-sharp',
     'gatsby-transformer-sharp',
+    'gatsby-plugin-svgr',
     {
       resolve: 'gatsby-plugin-feed',
       options: {

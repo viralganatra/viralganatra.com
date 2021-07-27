@@ -61,6 +61,11 @@ export const TOKEN_FONT_SIZE_GAMMA = px2rem(18);
 export const TOKEN_FONT_SIZE_DELTA = px2rem(14);
 
 /**
+ * Pixel equivalent: 12px
+ */
+export const TOKEN_FONT_SIZE_EPSILON = px2rem(12);
+
+/**
  * Pixel equivalent: 16px
  */
 export const TOKEN_FONT_SIZE_BASE = px2rem(16);
@@ -84,6 +89,11 @@ export const TOKEN_LINE_HEIGHT_GAMMA = px2rem(21);
  * Pixel equivalent: 21px
  */
 export const TOKEN_LINE_HEIGHT_DELTA = px2rem(21);
+
+/**
+ * Pixel equivalent: 19px
+ */
+export const TOKEN_LINE_HEIGHT_EPSILON = px2rem(19);
 
 /**
  * Pixel equivalent: 26px

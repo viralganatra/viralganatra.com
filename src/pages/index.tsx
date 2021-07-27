@@ -6,7 +6,6 @@ import SEO from '../components/seo';
 import Header from '../components/header';
 import Tags from '../components/tags';
 import PostExcerpt from '../components/post-excerpt';
-import { HEADER_SIZE_LARGE } from '../constants/header';
 import { contentWrapper, Main } from '../styles/global';
 import { mediaQuery, sm, md, lg } from '../styles/responsive';
 
@@ -56,6 +55,10 @@ export const pageQuery = graphql`
 
 const Masthead = styled.div`
   padding: var(--spacing-sm);
+  height: 100vh;
+  place-content: center;
+  display: flex;
+  flex-direction: column;
 
   ${mediaQuery(sm)} {
     padding: var(--spacing-lg);
@@ -78,7 +81,7 @@ const LatestPostTagsWrapper = styled.div`
 `;
 
 const LatestPost = styled.div`
-  background: var(--color-bg-accent);
+  background: var(--color-yellow-100);
   margin-bottom: var(--spacing-sm);
   padding: var(--spacing-xs);
   position: relative;
@@ -150,7 +153,7 @@ const Posts = styled.div`
   }
 `;
 
-export default function HomePage({ data }: HomePageProps) {
+export default function HomePage({ data, location }: HomePageProps) {
   const { nodes, group: tags } = data.allMdx;
   const [firstPost, ...otherPosts] = nodes;
   const tagsByCount = tags.sort((a, b) => b.count - a.count).map(({ tag }) => tag);
@@ -160,7 +163,7 @@ export default function HomePage({ data }: HomePageProps) {
       <SEO title="Passionate web developer who loves JavaScript!" />
 
       <Masthead>
-        <Header size={HEADER_SIZE_LARGE} text="Hi, I'm Viral Ganatra" />
+        <Header location={location} />
       </Masthead>
 
       <Main>

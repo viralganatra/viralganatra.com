@@ -41,14 +41,14 @@ export const TOKEN_SPACING_XL = px2rem(48);
 export const TOKEN_SPACING_XXL = px2rem(64);
 
 /**
- * Pixel equivalent: 35px
+ * Pixel equivalent: 42px
  */
-export const TOKEN_FONT_SIZE_ALPHA = px2rem(35);
+export const TOKEN_FONT_SIZE_ALPHA = px2rem(42);
 
 /**
- * Pixel equivalent: 25px
+ * Pixel equivalent: 35px
  */
-export const TOKEN_FONT_SIZE_BETA = px2rem(25);
+export const TOKEN_FONT_SIZE_BETA = px2rem(35);
 
 /**
  * Pixel equivalent: 20px
@@ -61,19 +61,24 @@ export const TOKEN_FONT_SIZE_GAMMA = px2rem(20);
 export const TOKEN_FONT_SIZE_DELTA = px2rem(14);
 
 /**
- * Pixel equivalent: 16px
+ * Pixel equivalent: 12px
  */
-export const TOKEN_FONT_SIZE_BASE = px2rem(16);
+export const TOKEN_FONT_SIZE_EPSILON = px2rem(12);
+
+/**
+ * Pixel equivalent: 18px
+ */
+export const TOKEN_FONT_SIZE_BASE = px2rem(18);
+
+/**
+ * Pixel equivalent: 45px
+ */
+export const TOKEN_LINE_HEIGHT_ALPHA = px2rem(52);
 
 /**
  * Pixel equivalent: 38px
  */
-export const TOKEN_LINE_HEIGHT_ALPHA = px2rem(38);
-
-/**
- * Pixel equivalent: 34px
- */
-export const TOKEN_LINE_HEIGHT_BETA = px2rem(34);
+export const TOKEN_LINE_HEIGHT_BETA = px2rem(42);
 
 /**
  * Pixel equivalent: 28px
@@ -86,6 +91,11 @@ export const TOKEN_LINE_HEIGHT_GAMMA = px2rem(31);
 export const TOKEN_LINE_HEIGHT_DELTA = px2rem(21);
 
 /**
- * Pixel equivalent: 26px
+ * Pixel equivalent: 19px
  */
-export const TOKEN_LINE_HEIGHT_BASE = px2rem(26);
+export const TOKEN_LINE_HEIGHT_EPSILON = px2rem(19);
+
+/**
+ * Pixel equivalent: 28px
+ */
+export const TOKEN_LINE_HEIGHT_BASE = px2rem(28);

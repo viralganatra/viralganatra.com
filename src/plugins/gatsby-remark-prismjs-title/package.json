@@ -1,0 +1,27 @@
+{
+  "name": "@viralganatra/gatsby-remark-prismjs-title",
+  "description": "Gatsby plugin to autolink headers in markdown processed by Remark",
+  "version": "1.0.0",
+  "author": "Viral Ganatra <viral@viralganatra.com>",
+  "keywords": [
+    "gatsby",
+    "gatsby-plugin",
+    "remark",
+    "prismjs"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=12"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/viralganatra/gatsby-remark-prismjs-title.git"
+  },
+  "main": "index.js",
+  "dependencies": {
+    "unist-util-visit": "^1.4.1"
+  },
+  "peerDependencies": {
+    "gatsby": "^3"
+  }
+}

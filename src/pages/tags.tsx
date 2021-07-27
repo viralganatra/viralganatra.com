@@ -60,7 +60,7 @@ const TagCount = styled.span`
   color: var(--color-link);
 `;
 
-export default function TagsPage({ data }: TagsPageProps) {
+export default function TagsPage({ data, location }: TagsPageProps) {
   const tagsByCount = data.allMdx.group.sort((a, b) => b.count - a.count);
 
   return (
@@ -68,7 +68,7 @@ export default function TagsPage({ data }: TagsPageProps) {
       <SEO title="All Tags" />
 
       <Masthead>
-        <Header text="Viral Ganatra" />
+        <Header location={location} />
       </Masthead>
 
       <Main>
