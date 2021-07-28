@@ -10,8 +10,8 @@ type PostExcerptProps = {
     title: string;
     isoDate: string;
     date: string;
+    intro: string;
   };
-  excerpt: string;
 };
 
 const Title = styled.h3`
@@ -32,10 +32,10 @@ const Excerpt = styled.p`
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 4;
 `;
 
-export default function PostExcerpt({ fields, frontmatter, excerpt }: PostExcerptProps) {
+export default function PostExcerpt({ fields, frontmatter }: PostExcerptProps) {
   return (
     <article>
       <header>
@@ -44,7 +44,7 @@ export default function PostExcerpt({ fields, frontmatter, excerpt }: PostExcerp
         </Title>
         <time dateTime={frontmatter.isoDate}>{frontmatter.date}</time>
       </header>
-      <Excerpt dangerouslySetInnerHTML={{ __html: excerpt }} />
+      <Excerpt dangerouslySetInnerHTML={{ __html: frontmatter.intro }} />
     </article>
   );
 }

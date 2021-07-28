@@ -17,7 +17,6 @@ type HomePageProps = PageProps & {
         count: number;
       }[];
       nodes: {
-        excerpt: string;
         fields: {
           slug: string;
         };
@@ -25,6 +24,7 @@ type HomePageProps = PageProps & {
           date: string;
           isoDate: string;
           title: string;
+          intro: string;
         };
       }[];
     };
@@ -39,7 +39,6 @@ export const pageQuery = graphql`
         count: totalCount
       }
       nodes {
-        excerpt(pruneLength: 280)
         fields {
           slug
         }
@@ -47,6 +46,7 @@ export const pageQuery = graphql`
           date(formatString: "MMMM DD, YYYY")
           isoDate: date(formatString: "YYYY-MM-DD")
           title
+          intro
         }
       }
     }
@@ -175,22 +175,13 @@ export default function HomePage({ data, location }: HomePageProps) {
 
           <LatestPost>
             <LatestText>Latest</LatestText>
-            <PostExcerpt
-              frontmatter={firstPost.frontmatter}
-              fields={firstPost.fields}
-              excerpt={firstPost.excerpt}
-            />
+            <PostExcerpt frontmatter={firstPost.frontmatter} fields={firstPost.fields} />
           </LatestPost>
         </LatestPostTagsWrapper>
 
         <Posts>
-          {otherPosts.map(({ frontmatter, fields, excerpt }) => (
-            <PostExcerpt
-              key={fields.slug}
-              frontmatter={frontmatter}
-              fields={fields}
-              excerpt={excerpt}
-            />
+          {otherPosts.map(({ frontmatter, fields }) => (
+            <PostExcerpt key={fields.slug} frontmatter={frontmatter} fields={fields} />
           ))}
         </Posts>
       </Main>
