@@ -98,7 +98,7 @@ const Article = styled.article`
   ${mediaQuery(md)} {
     display: grid;
     grid-template-areas:
-      'empty header'
+      'header header'
       'sidebar body';
     grid-template-columns: 200px minmax(0, 1fr);
     grid-gap: var(--spacing-md) var(--spacing-xxl);
@@ -108,7 +108,7 @@ const Article = styled.article`
   }
 
   h2 {
-    margin-top: var(--spacing-md);
+    margin: var(--spacing-lg) 0 var(--spacing-md) 0;
   }
   .gatsby-resp-image-wrapper {
     margin: 0 0 var(--spacing-md) 0 !important;
@@ -121,6 +121,38 @@ const Heading = styled.header`
 
 const Body = styled.div`
   grid-area: body;
+
+  ul,
+  ol {
+    counter-reset: counter;
+    list-style: none;
+
+    li {
+      counter-increment: counter;
+      margin: var(--spacing-xs) 0;
+      position: relative;
+
+      &::before {
+        --size: 32px;
+
+        background: var(--color-link);
+        border-radius: 50%;
+        color: var(--color-text-invert);
+        content: counter(counter);
+        height: var(--size);
+        left: calc(-1 * var(--size) - var(--spacing-xs));
+        line-height: var(--size);
+        position: absolute;
+        text-align: center;
+        top: calc(50% - (var(--size) / 2));
+        width: var(--size);
+      }
+    }
+  }
+  ul li::before {
+    --size: 16px;
+    content: '';
+  }
 `;
 
 const Sidebar = styled.aside`
@@ -149,15 +181,7 @@ const TableOfContents = styled.div`
 `;
 
 const TableOfContentsHeading = styled.h3`
-  border-image-slice: 1;
-  border-image-source: linear-gradient(
-    to right,
-    var(--color-link-gradient-1),
-    var(--color-link-gradient-2)
-  );
-  border-style: solid;
-  border-width: 0 0 2px 0;
-  color: var(--color-text-light);
+  color: var(--color-gray-600);
   font-size: var(--text-size-delta);
   font-weight: normal;
   letter-spacing: 0.2em;
@@ -183,6 +207,12 @@ const QuickLinks = styled.ol`
   }
 `;
 
+const OtherPosts = styled.nav`
+  border-top: 1px solid var(--color-gray-600);
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-lg) 0;
+`;
+
 const NavList = styled.ul`
   display: flex;
   flex-wrap: wrap;
@@ -193,15 +223,9 @@ const NavList = styled.ul`
   padding: 0;
 `;
 
-const StyledBio = styled.footer`
-  border: 1px solid var(--color-border);
-  border-width: 1px 0;
-  margin: var(--spacing-md) 0;
-`;
-
 const getHeadingIds = (items: tableOfContentsItems) => items?.map((i) => i.url) ?? [];
 
-export default function BlogPostTemplate({ data }: BlogPostTemplateQuery) {
+export default function BlogPostTemplate({ data, location }: BlogPostTemplateQuery) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const { mdx: post, previous, next } = data;
 
@@ -243,13 +267,14 @@ export default function BlogPostTemplate({ data }: BlogPostTemplateQuery) {
       />
 
       <Masthead>
-        <Header />
+        <Header location={location} />
       </Masthead>
       <Main>
         <ContentWrapper>
           <Article itemScope itemType="http://schema.org/Article">
             <Heading>
               <h1 itemProp="headline">{post.frontmatter.title}</h1>
+
               <ArticleMeta>
                 <time dateTime={post.frontmatter.isoDate} itemProp="datePublished">
                   {post.frontmatter.date}
@@ -280,11 +305,7 @@ export default function BlogPostTemplate({ data }: BlogPostTemplateQuery) {
             </Body>
           </Article>
 
-          <StyledBio>
-            <Bio />
-          </StyledBio>
-
-          <nav>
+          <OtherPosts>
             <NavList>
               <li>
                 {previous && (
@@ -301,8 +322,9 @@ export default function BlogPostTemplate({ data }: BlogPostTemplateQuery) {
                 )}
               </li>
             </NavList>
-          </nav>
+          </OtherPosts>
         </ContentWrapper>
+        <Bio />
       </Main>
     </App>
   );

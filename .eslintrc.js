@@ -11,6 +11,7 @@ module.exports = {
   plugins: ['@typescript-eslint'],
   rules: {
     'no-param-reassign': ['error', { props: true, ignorePropertyModificationsFor: ['node'] }],
+    'no-underscore-dangle': ['error', { allow: ['__PATH_PREFIX__'] }],
     'react/react-in-jsx-scope': ['off'],
     'react/require-default-props': ['off'],
     'react/jsx-filename-extension': [2, { extensions: ['.js', '.jsx', '.ts', '.tsx'] }],

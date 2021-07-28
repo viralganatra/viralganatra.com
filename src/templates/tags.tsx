@@ -82,7 +82,7 @@ const Posts = styled.div`
   }
 `;
 
-export default function TagsTemplate({ data, pageContext }: TagsTemplateProps) {
+export default function TagsTemplate({ data, location, pageContext }: TagsTemplateProps) {
   const { totalCount, nodes: posts } = data.allMdx;
 
   return (
@@ -90,7 +90,7 @@ export default function TagsTemplate({ data, pageContext }: TagsTemplateProps) {
       <SEO title="All Tags" />
 
       <Masthead>
-        <Header text="Viral Ganatra" />
+        <Header location={location} />
       </Masthead>
 
       <Main>

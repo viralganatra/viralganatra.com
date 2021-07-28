@@ -7,8 +7,8 @@ import { mediaQuery, sm, md, lg } from './responsive';
 import { px2rem } from './utils';
 import * as tokensWeb from './design-tokens/design-tokens-web';
 import * as tokensMobile from './design-tokens/design-tokens-mobile';
-import IconTwitter from '../../content/assets/icon-twitter.svg';
-import IconHeart from '../../content/assets/icon-heart.svg';
+import IconTwitter from '../../content/icons/icon-twitter.svg';
+import IconHeart from '../../content/icons/icon-heart.svg';
 
 const globalStyles = (
   <Global
@@ -19,28 +19,41 @@ const globalStyles = (
         --font-family: 'Open Sans', sans-serif;
         --font-size: ${tokensMobile.TOKEN_FONT_SIZE_BASE};
 
-        --color-text-hs: 0 0%;
-        --color-bg-hs: 21 73%;
-        --color-text: hsl(var(--color-text-hs) 20%);
-        --color-text-light: hsl(var(--color-text-hs) 50%);
-        --color-text-invert: rgb(255, 255, 255);
-        --color-bg: hsl(var(--color-bg-hs) 65%);
-        --color-bg-accent: #f5deb4;
+        --color-turquoise-500: #12cbc4;
+        --color-red-500: #d7383f;
+        --color-magenta-800: #e6007a;
+        --color-fuschia-800: #9932cc;
+        --color-fuschia-200: #b9a7ff;
+        --color-blue-900: #24303d;
+        --color-blue-800: #334150;
+        --color-blue-500: #14b3ff;
+        --color-blue-100: #e1e8ed;
+        --color-yellow-500: #ffc312;
+        --color-yellow-100: #f5deb3;
+        --color-orange-800: #c75a1f;
+        --color-orange-300: #ff8d58;
+        --color-orange-200: #e79265;
+        --color-gray-900: #333;
+        --color-gray-300: #9294a3;
+        --color-gray-600: #808080;
+        --color-gray-100: #f2f2f7;
+        --color-gray-50: #fff;
+
+        --color-text: var(--color-gray-900);
+        --color-text-invert: var(--color-gray-100);
+        --color-link: var(--color-orange-800);
+        --color-link-hover: var(--color-gray-100);
+        --color-gradient-1: var(--color-fuschia-800);
+        --color-gradient-2: var(--color-magenta-800);
+        --color-link-gradient-1: var(--color-blue-500);
+        --color-link-gradient-2: var(--color-turquoise-500);
         --color-content-bg: rgba(255, 255, 255, 0.9);
-        --color-border: hsl(var(--color-text-hs) 60%);
-        --color-link: hsl(var(--color-bg-hs) 45%);
-        --color-link-hover: hsl(var(--color-bg-hs) 100%);
-        --color-link-gradient-1: #14b3ff;
-        --color-link-gradient-2: #4acc32;
-        --color-code-gradient-1: #e6007a;
-        --color-code-gradient-2: #9932cc;
-        --color-code-bg: #272727;
-        --color-code-highlight-line-bg: #636363;
-        --color-code-highlight-line-notch: #ff69b4;
-        --color-twitter: #1da1f2;
-        --color-twitter-card-bg: #fff;
-        --color-twitter-card-border: #e1e8ed;
-        --color-twitter-video-bg: #000;
+
+        --color-twitter: var(--color-blue-500);
+        --color-twitter-heart: var(--color-red-500);
+        --color-twitter-card-bg: var(--color-gray-50);
+        --color-twitter-card-border: var(--color-blue-100);
+        --color-twitter-video-bg: var(--color-gray-900);
 
         --text-size-alpha: ${tokensMobile.TOKEN_FONT_SIZE_ALPHA};
         --text-size-beta: ${tokensMobile.TOKEN_FONT_SIZE_BETA};
@@ -51,6 +64,7 @@ const globalStyles = (
         --text-line-height-beta: ${tokensMobile.TOKEN_LINE_HEIGHT_BETA};
         --text-line-height-gamma: ${tokensMobile.TOKEN_LINE_HEIGHT_GAMMA};
         --text-line-height-delta: ${tokensMobile.TOKEN_LINE_HEIGHT_DELTA};
+        --text-line-height-epsilon: ${tokensMobile.TOKEN_LINE_HEIGHT_EPSILON};
         --text-line-height-base: ${tokensMobile.TOKEN_LINE_HEIGHT_BASE};
 
         --spacing-xxxs: ${tokensMobile.TOKEN_SPACING_XXXS};
@@ -77,11 +91,13 @@ const globalStyles = (
           --text-size-beta: ${tokensWeb.TOKEN_FONT_SIZE_BETA};
           --text-size-gamma: ${tokensWeb.TOKEN_FONT_SIZE_GAMMA};
           --text-size-delta: ${tokensWeb.TOKEN_FONT_SIZE_DELTA};
-          --text-size-base: ${tokensWeb.TOKEN_FONT_SIZE_BASE};
+          --text-size-epsilon: ${tokensWeb.TOKEN_FONT_SIZE_EPSILON};
+          --text-size-base: ${tokensWeb.TOKEN_FONT_SIZE_GAMMA};
           --text-line-height-alpha: ${tokensWeb.TOKEN_LINE_HEIGHT_ALPHA};
           --text-line-height-beta: ${tokensWeb.TOKEN_LINE_HEIGHT_BETA};
           --text-line-height-gamma: ${tokensWeb.TOKEN_LINE_HEIGHT_GAMMA};
           --text-line-height-delta: ${tokensWeb.TOKEN_LINE_HEIGHT_DELTA};
+          --text-line-height-epsilon: ${tokensWeb.TOKEN_LINE_HEIGHT_EPSILON};
           --text-line-height-base: ${tokensWeb.TOKEN_LINE_HEIGHT_BASE};
 
           --spacing-xxxs: ${tokensWeb.TOKEN_SPACING_XXXS};
@@ -103,7 +119,7 @@ const globalStyles = (
       }
       html {
         background-size: contain;
-        background: var(--color-bg) url(${bgWebp}) fixed 0 0;
+        background: var(--color-orange-800) url(${bgWebp}) fixed 0 0;
         box-sizing: border-box;
         color: var(--color-text);
         font-family: var(--font-family);
@@ -128,7 +144,7 @@ const globalStyles = (
       h3,
       h4,
       p {
-        margin: ${px2rem(16)} 0;
+        margin: ${px2rem(24)} 0;
         font-weight: bold;
       }
       p {
@@ -220,9 +236,10 @@ const globalStyles = (
         transition: var(--transition);
 
         &:hover {
-          border-bottom-color: grey;
+          border-bottom-color: var(--color-turquoise-500);
 
           svg {
+            color: var(--color-turquoise-500);
             opacity: 1;
           }
         }
@@ -237,8 +254,26 @@ const globalStyles = (
         }
       }
 
+      .gatsby-code-title {
+        align-items: center;
+        background-color: var(--color-yellow-500);
+        border-radius: var(--spacing-border-radius) var(--spacing-border-radius) 0 0;
+        display: flex;
+        font-size: var(--text-size-epsilon);
+        line-height: var(--text-line-height-epsilon);
+        margin-top: var(--spacing-md);
+        padding: var(--spacing-xs);
+
+        svg {
+          margin-right: var(--spacing-xs);
+        }
+        & + .gatsby-highlight {
+          border-radius: 0 0 var(--spacing-border-radius) var(--spacing-border-radius);
+          margin-top: 0;
+        }
+      }
       .gatsby-highlight {
-        background-color: var(--color-code-bg);
+        background-color: var(--color-blue-800);
         border-radius: var(--spacing-border-radius);
         margin: var(--spacing-md) 0;
         padding: 1rem;
@@ -252,21 +287,48 @@ const globalStyles = (
           padding: 0;
           overflow: initial;
         }
+        code[class*='language-'],
+        pre[class*='language-'] {
+          color: var(--color-gray-100);
+        }
+        .token.selector,
+        .token.important,
+        .token.atrule,
+        .token.keyword,
+        .token.builtin {
+          color: var(--color-yellow-500);
+        }
+        .token.operator,
+        .token.entity,
+        .token.url {
+          color: var(--color-orange-300);
+        }
+        .token.punctuation {
+          color: var(--color-gray-300);
+        }
+        .token.boolean,
+        .token.number,
+        .token.function {
+          color: var(--color-turquoise-500);
+        }
+        .token.string,
+        .token.char,
+        .token.attr-value,
+        .token.regex,
+        .token.variable {
+          color: var(--color-fuschia-200);
+        }
       }
       .gatsby-highlight-code-line {
-        background-color: var(--color-code-highlight-line-bg);
-        border-left: 0.25rem solid var(--color-code-highlight-line-notch);
+        background-color: var(--color-blue-900);
+        border-left: 0.25rem solid var(--color-yellow-500);
         display: block;
         margin: 0 -1rem;
         padding-left: 0.75rem;
         padding-right: 1rem;
       }
       &:not(pre) > code[class*='language-'] {
-        background: linear-gradient(
-          90deg,
-          var(--color-code-gradient-1),
-          var(--color-code-gradient-2)
-        );
+        background: linear-gradient(90deg, var(--color-gradient-1), var(--color-gradient-2));
         color: white;
       }
 
@@ -358,16 +420,19 @@ const globalStyles = (
       }
       .twitter-card-icon-brand,
       .twitter-card-icon-like {
-        background-image: url(${IconTwitter});
-        background-repeat: no-repeat;
+        background-color: var(--color-twitter);
         background-size: contain;
         display: inline-block;
         height: 1.25em;
+        -webkit-mask-image: url(${IconTwitter});
+        mask-image: url(${IconTwitter});
         width: 1.25em;
       }
       .twitter-card-icon-like {
-        background-image: url(${IconHeart});
+        background-color: var(--color-twitter-heart);
         margin-right: 2px;
+        -webkit-mask-image: url(${IconHeart});
+        mask-image: url(${IconHeart});
       }
       .twitter-card-video-container {
         background: var(--color-twitter-video-bg);
@@ -392,7 +457,7 @@ const globalStyles = (
 export const Main = styled.main`
   background-color: var(--color-content-bg);
   flex-grow: 1;
-  padding: var(--spacing-content) 0;
+  padding-top: var(--spacing-content);
   position: relative;
 
   // Using the clip path on the main element causes weird lag/tearing in Chrome
