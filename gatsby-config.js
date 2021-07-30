@@ -150,6 +150,30 @@ module.exports = {
       },
     },
     'gatsby-plugin-react-helmet',
+    {
+      resolve: 'gatsby-plugin-sitemap',
+      options: {
+        query: `
+        {
+          site {
+            siteMetadata {
+              siteUrl
+            }
+          }
+          allSitePage {
+            nodes {
+              path
+            }
+          }
+        }
+        `,
+        serialize: ({ path }) => {
+          const url = path.endsWith('/') ? path : `${path}/`;
+
+          return { url };
+        },
+      },
+    },
     'gatsby-plugin-offline',
     {
       resolve: 'gatsby-plugin-google-gtag',
