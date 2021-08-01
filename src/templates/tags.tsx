@@ -14,11 +14,11 @@ type TagsTemplateProps = PageProps & {
       totalCount: number;
       nodes: {
         id: string;
-        excerpt: string;
         frontmatter: {
           title: string;
           date: string;
           isoDate: string;
+          intro: string;
         };
         fields: {
           slug: string;
@@ -43,11 +43,11 @@ export const pageQuery = graphql`
           slug
         }
         id
-        excerpt(pruneLength: 280)
         frontmatter {
           title
           date(formatString: "DD MMMM YYYY")
           isoDate: date(formatString: "YYYY-MM-DD")
+          intro
         }
       }
     }
@@ -99,13 +99,8 @@ export default function TagsTemplate({ data, location, pageContext }: TagsTempla
           <TotalCount>{totalCount} posts</TotalCount>
 
           <Posts>
-            {posts.map(({ frontmatter, fields, excerpt }) => (
-              <PostExcerpt
-                key={fields.slug}
-                frontmatter={frontmatter}
-                fields={fields}
-                excerpt={excerpt}
-              />
+            {posts.map(({ frontmatter, fields }) => (
+              <PostExcerpt key={fields.slug} frontmatter={frontmatter} fields={fields} />
             ))}
           </Posts>
         </Content>
