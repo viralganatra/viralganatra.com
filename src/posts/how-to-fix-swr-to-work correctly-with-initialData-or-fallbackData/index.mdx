@@ -1,0 +1,169 @@
+---
+title: 'How to fix SWR to work correctly with initialData or fallbackData'
+metaTitle: 'How to fix SWR to work correctly with initialData or fallbackData'
+intro: >
+  Using the awesome SWR library can be frustrating when you need to hydrate some data from the server but still allow further API calls to fetch and render the correct set of data. I'll show you how to work around the initialData/fallbackData limitation.
+date: '2021-09-25'
+tags:
+  - javascript
+---
+
+If you've had problems getting the `initialData` or `fallbackData` property of SWR to work properly with server-side data and subsequent client API calls then I'll show you how I fixed this to work as intended.
+
+## SWR
+
+I've been using the awesome data fetching library [SWR](https://swr.vercel.app/) (the same the same team behind [Next.js](https://nextjs.org/), the [React](https://reactjs.org/) framework. SWR is a lightweight library that makes remote data fetching, caching or refetching data easier, exposing this via a React hook.
+
+The basic way it works is like this:
+
+```js:title=example.js
+import useSWR from 'swr';
+
+function Search() {
+  const [keyword, setKeyword] = useState(null);
+  const queryString = `?keyword=${keyword}`;
+  const { data, error } = useSWR(keyword ? `/api/search${queryString}` : null);
+
+  if (error) return <div>Failed to search</div>
+  if (!data) return <div>Loading...</div>
+  return <div>Search results {data.meta.count}</div>
+}
+```
+
+## Problems with duplicate calls
+
+I was working on an application that would send search requests to an api and return a set of results. Users had the ability to save their search, bookmark the link and come back to the results at a later date. In order to avoid all the work happening on the client side (data fetching), I was using the SSR feature from Next.js to render this saved search results page. The page would make the requests in the background, wait for the data and then return the fully rendered page to the client. A basic version of this looked like the following:
+
+
+```js:title=pages/search/[savedSearchId].js
+import fetch from 'node-fetch';
+import IndexPage from '../index';
+
+const { APP_URL } = process.env;
+
+export async function getServerSideProps(context) {
+  const { query } = context;
+  const { savedSearchId } = query;
+  const url = `${APP_URL}/api/saved-search/${savedSearchId}`;
+
+  try {
+    const resp = await fetch(url);
+    const data = await resp.json();
+
+    return { props: { data } };
+  } catch (err) {
+    return { props: { error: 'Something went wrong.'} };
+  }
+}
+
+export default function SavedSearch({ data, error }) {
+  return <IndexPage initialData={data} serverError={error} />;
+}
+```
+
+```js:title=pages/index.js
+export default function IndexPage({ initialData = {}, serverError }) {
+  const [keyword, setKeyword] = useState(initialData.keyword);
+  const queryString = `?keyword=${keyword}`;
+  const { data, error } = useSWR(keyword ? `/api/search${queryString}` : null);
+
+  return (
+    <div>
+      <SearchBar value={keyword} onChange={(event) => {
+        setKeyword(event.target.value);
+      }} />
+      {data?.results.map((item) => <div>{item.name}</div>)}
+    </div>
+  );
+}
+```
+
+However upon loading the page I noticed SWR was still making a client side API call to fetch the same set of data. This wasn't ideal since we already had the data, making the client side request redundant. Digging into the SWR docs I came across the [initialData](https://swr.vercel.app/docs/prefetching#pre-fill-data) option (now renamed to `fallbackData` in version 1.0).
+
+So it looked to be as simple as passing the initial set of results to the useSWR hook:
+
+```js{4-10}:title=pages/index.js
+export default function IndexPage({ initialData = {}, serverError }) {
+  const [keyword, setKeyword] = useState(initialData.keyword);
+  const queryString = `?keyword=${keyword}`;
+  const { data, error } = useSWR(
+    keyword ? `/api/search${queryString}` : null,
+    undefined,
+    {
+      fallbackData: initialData,
+    },
+  );
+
+  return (
+    <div>
+      <SearchBar value={keyword} onChange={(event) => {
+        setKeyword(event.target.value);
+      }} />
+      {data?.results.map((item) => <div>{item.name}</div>)}
+    </div>
+  );
+}
+```
+
+And this worked great, refreshing the page showed the client side request was no longer being made. So all good right?
+
+## It's never that easy
+
+So thinking everything was good I happily updated the tests, but... they failed. The failing test was reporting that for subsequent searches the data didn't match up. Upon going back to the UI and searching for a new keyword, sure enough the results were never updated, even though the client side API call was being invoked.
+
+After some much frustration and Googling I stumbled upon the answer. By default SWR uses the `key` property to cache results from an API call, so that subsequent calls to that url return the cached data and the network request isn't made again. So when you do the following:
+
+
+```js{6}:title=example.js
+import useSWR from 'swr';
+
+function Search() {
+  const [keyword, setKeyword] = useState('amazon');
+  const queryString = `?keyword=${keyword}`;
+  const { data, error } = useSWR(keyword ? `/api/search${queryString}` : null);
+}
+```
+
+The key is equal to our url `/api/search?keyword=amazon`. However when you pass SWR the fallback data, it will always use this when there is a cache miss. So when you change the keyword from amazon to apple, the key is different and there is no cache entry for apple. When there is no cache entry SWR returns the fallback data, which is not what we want.
+
+The way to fix this is the following snippet which you can use:
+
+```js:title=./utils/use-swr-with-fallback-data.js
+import { useEffect, useRef } from 'react';
+import useSWR from 'swr';
+
+export default function useSWRWithFallbackData(key, fetcher, options = {}) {
+  const hasMounted = useRef(false);
+
+  useEffect(() => {
+    hasMounted.current = true;
+  }, []);
+
+  return useSWR(key, fetcher, {
+    ...options,
+    fallbackData: hasMounted.current ? undefined : options?.fallbackData,
+  });
+}
+```
+
+```js{6}:title=example.js
+import useSWRWithFallbackData from './utils/use-swr-with-fallback-data';
+
+function Search() {
+  const [keyword, setKeyword] = useState(null);
+  const queryString = `?keyword=${keyword}`;
+  const { data, error } = useSWRWithFallbackData(
+    keyword ? `/api/search${queryString}` : null,
+    undefined,
+    {
+      fallbackData: initialData,
+    },
+  );
+}
+```
+
+Since we only want to use the server side data once before the client has mounted we can take advantage of the `useEffect` hook to remove the `fallbackData` property when the client side has taken over, neatly avoiding this bug.
+
+## Update
+
+With the release of SWR v1 we can now potentially use the new [cache API](https://swr.vercel.app/docs/advanced/cache) to get around this, it would be interesting to see how this simplifies the approach.
